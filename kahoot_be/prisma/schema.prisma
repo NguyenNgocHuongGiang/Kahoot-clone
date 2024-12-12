@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model GameSessions {
+  session_id     Int                  @id @default(autoincrement())
+  quiz_id        Int
+  pin            String               @unique(map: "pin") @db.VarChar(10)
+  status         GameSessions_status? @default(active)
+  start_time     DateTime?            @default(now()) @db.Timestamp(0)
+  end_time       DateTime?            @db.Timestamp(0)
+  host           String               @db.VarChar(100)
+  Quizzes        Quizzes              @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction, map: "GameSessions_ibfk_1")
+  SessionAnswers SessionAnswers[]
+  SessionPlayers SessionPlayers[]
+
+  @@index([quiz_id], map: "quiz_id")
+}
+
+model GroupMembers {
+  member_id Int       @id @default(autoincrement())
+  group_id  Int
+  user_id   Int
+  joined_at DateTime? @default(now()) @db.Timestamp(0)
+  Groups    Groups    @relation(fields: [group_id], references: [group_id], onDelete: NoAction, onUpdate: NoAction, map: "GroupMembers_ibfk_1")
+  Users     Users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "GroupMembers_ibfk_2")
+
+  @@index([group_id], map: "group_id")
+  @@index([user_id], map: "user_id")
+}
+
+model GroupMessages {
+  message_id Int       @id @default(autoincrement())
+  group_id   Int
+  user_id    Int
+  message    String    @db.Text
+  sent_at    DateTime? @default(now()) @db.Timestamp(0)
+  Groups     Groups    @relation(fields: [group_id], references: [group_id], onDelete: NoAction, onUpdate: NoAction, map: "GroupMessages_ibfk_1")
+  Users      Users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "GroupMessages_ibfk_2")
+
+  @@index([group_id], map: "group_id")
+  @@index([user_id], map: "user_id")
+}
+
+model Groups {
+  group_id      Int             @id @default(autoincrement())
+  group_name    String          @db.VarChar(100)
+  created_by    Int
+  created_at    DateTime?       @default(now()) @db.Timestamp(0)
+  GroupMembers  GroupMembers[]
+  GroupMessages GroupMessages[]
+  Users         Users           @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Groups_ibfk_1")
+
+  @@index([created_by], map: "created_by")
+}
+
+model Options {
+  option_id   Int       @id @default(autoincrement())
+  question_id Int
+  option_text String    @db.Text
+  is_correct  Boolean?  @default(false)
+  Questions   Questions @relation(fields: [question_id], references: [question_id], onDelete: NoAction, onUpdate: NoAction, map: "Options_ibfk_1")
+
+  @@index([question_id], map: "question_id")
+}
+
+model Payments {
+  payment_id      Int              @id @default(autoincrement())
+  user_id         Int
+  subscription_id Int
+  payment_method  String           @db.VarChar(50)
+  status          Payments_status? @default(Pending)
+  amount          Decimal          @db.Decimal(10, 2)
+  payment_date    DateTime?        @default(now()) @db.Timestamp(0)
+  Users           Users            @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Payments_ibfk_1")
+  Subscriptions   Subscriptions    @relation(fields: [subscription_id], references: [subscription_id], onDelete: NoAction, onUpdate: NoAction, map: "Payments_ibfk_2")
+
+  @@index([subscription_id], map: "subscription_id")
+  @@index([user_id], map: "user_id")
+}
+
+model Questions {
+  question_id    Int                     @id @default(autoincrement())
+  quiz_id        Int
+  question_text  String                  @db.Text
+  question_type  Questions_question_type
+  media_url      String?                 @db.Text
+  time_limit     Int?                    @default(30)
+  points         Int?                    @default(0)
+  Options        Options[]
+  Quizzes        Quizzes                 @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction, map: "Questions_ibfk_1")
+  SessionAnswers SessionAnswers[]
+
+  @@index([quiz_id], map: "quiz_id")
+}
+
+model Quizzes {
+  quiz_id      Int                 @id @default(autoincrement())
+  title        String              @db.VarChar(255)
+  description  String?             @db.Text
+  creator      String              @db.VarChar(100)
+  cover_image  String?             @db.Text
+  visibility   Quizzes_visibility? @default(public)
+  category     String?             @db.VarChar(50)
+  created_at   DateTime?           @default(now()) @db.Timestamp(0)
+  updated_at   DateTime?           @default(now()) @db.Timestamp(0)
+  GameSessions GameSessions[]
+  Questions    Questions[]
+}
+
+model SessionAnswers {
+  answer_id       Int          @id @default(autoincrement())
+  session_id      Int
+  user_id         Int
+  question_id     Int
+  selected_option Int?
+  is_correct      Boolean?
+  answered_at     DateTime?    @default(now()) @db.Timestamp(0)
+  GameSessions    GameSessions @relation(fields: [session_id], references: [session_id], onDelete: NoAction, onUpdate: NoAction, map: "SessionAnswers_ibfk_1")
+  Users           Users        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "SessionAnswers_ibfk_2")
+  Questions       Questions    @relation(fields: [question_id], references: [question_id], onDelete: NoAction, onUpdate: NoAction, map: "SessionAnswers_ibfk_3")
+
+  @@index([question_id], map: "question_id")
+  @@index([session_id], map: "session_id")
+  @@index([user_id], map: "user_id")
+}
+
+model SessionPlayers {
+  session_player_id Int          @id @default(autoincrement())
+  session_id        Int
+  user_id           Int
+  nickname          String       @db.VarChar(50)
+  score             Int?         @default(0)
+  join_time         DateTime?    @default(now()) @db.Timestamp(0)
+  GameSessions      GameSessions @relation(fields: [session_id], references: [session_id], onDelete: NoAction, onUpdate: NoAction, map: "SessionPlayers_ibfk_1")
+  Users             Users        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "SessionPlayers_ibfk_2")
+
+  @@index([session_id], map: "session_id")
+  @@index([user_id], map: "user_id")
+}
+
+model Subscriptions {
+  subscription_id Int        @id @default(autoincrement())
+  name            String     @db.VarChar(100)
+  description     String?    @db.Text
+  price           Decimal    @db.Decimal(10, 2)
+  created_at      DateTime?  @default(now()) @db.Timestamp(0)
+  Payments        Payments[]
+}
+
+model Users {
+  user_id        Int              @id @default(autoincrement())
+  username       String           @db.VarChar(50)
+  email          String           @unique(map: "email") @db.VarChar(100)
+  password       String           @db.VarChar(255)
+  full_name      String?          @db.VarChar(100)
+  created_at     DateTime?        @default(now()) @db.Timestamp(0)
+  GroupMembers   GroupMembers[]
+  GroupMessages  GroupMessages[]
+  Groups         Groups[]
+  Payments       Payments[]
+  SessionAnswers SessionAnswers[]
+  SessionPlayers SessionPlayers[]
+}
+
+enum Questions_question_type {
+  multiple_choice
+  true_false
+  open_ended
+  puzzle
+  poll
+}
+
+enum GameSessions_status {
+  active
+  completed
+}
+
+enum Payments_status {
+  Pending
+  Completed
+  Failed
+}
+
+enum Quizzes_visibility {
+  public
+  private
+}
