@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kahoot_clone/view/discovery/discovery_page.dart';
 import 'package:kahoot_clone/view/home/homepage.dart';
 import 'package:kahoot_clone/view/quiz/create_quiz.dart';
-import 'package:kahoot_clone/view/quiz/play_quiz.dart';
+import 'package:kahoot_clone/view/quiz/join_quiz.dart';
 import 'package:kahoot_clone/view/user/user.dart';
 
 class MainTemplate extends StatefulWidget {
@@ -18,7 +18,7 @@ class _MainTemplateState extends State<MainTemplate> {
   final List<Widget> _tabs = [
     const HomePage(),
     const DiscoveryPage(),
-    const PlayQuizPage(),
+    const JoinQuizPage(),
     const CreateQuizPage(),
     const UserPage(),
   ];

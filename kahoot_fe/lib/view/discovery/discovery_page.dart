@@ -48,6 +48,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                 itemCount: publicQuizzes.length,
                 itemBuilder: (context, index) {
                   var quiz = publicQuizzes[index];
+                  print(quiz['cover_image']);
                   return QuizCard(
                     index: index,
                     imageUrl: quiz['cover_image'],

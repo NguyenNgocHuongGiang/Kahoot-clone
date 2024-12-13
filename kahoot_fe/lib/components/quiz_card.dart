@@ -32,10 +32,11 @@ class QuizCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
               image: DecorationImage(
                 image: NetworkImage(imageUrl),
-                fit: BoxFit.cover,
+                fit: BoxFit.cover
               ),
             ),
           ),
+          
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
