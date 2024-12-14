@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kahoot_clone/providers/auth_provider.dart';
 import 'package:kahoot_clone/templates/AuthTemplate/auth_template.dart';
 import 'package:kahoot_clone/view/authentication/register_page.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +15,8 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisible = false;
   bool _rememberMe = false;
+  String email = '';
+  String password = '';
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +36,11 @@ class _LoginPageState extends State<LoginPage> {
                 prefixIcon: const Icon(Icons.email),
               ),
               keyboardType: TextInputType.emailAddress,
+              onChanged: (value) {
+                setState(() {
+                  email = value;
+                });
+              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
@@ -56,9 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                 prefixIcon: const Icon(Icons.lock),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _passwordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off,
+                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
                   ),
                   onPressed: () {
                     setState(() {
@@ -67,6 +74,11 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
               ),
+              onChanged: (value) {
+                setState(() {
+                  password = value;
+                });
+              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -114,32 +126,44 @@ class _LoginPageState extends State<LoginPage> {
             // Login button
             const SizedBox(height: 16.0),
             SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() == true) {
-                        // Handle login logic here
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Logging in...')),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    ),
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: ()  {
+                  if (_formKey.currentState?.validate() == true) {
+                    try {
+                      // Gọi phương thức login từ AuthProvider
+                       context.read<AuthProvider>().login(email, password);
+
+                      // Hiển thị thông báo thành công khi đăng nhập thành công
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Logic Successfully!')),
+                      );
+
+                     Navigator.pushReplacementNamed(context, '/');
+                    } catch (e) {
+                      // Hiển thị thông báo lỗi khi có sự cố trong quá trình đăng nhập
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.toString())),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
+              ),
+            ),
           ],
         ),
       ),

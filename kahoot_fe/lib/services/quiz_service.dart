@@ -1,22 +1,18 @@
 import 'dart:convert';
-import 'http_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:kahoot_clone/models/quiz_model.dart';  // Đảm bảo rằng đường dẫn đúng tới file quiz.dart
+import 'package:kahoot_clone/common/constants.dart'; // Đảm bảo rằng đường dẫn đúng tới file constants.dart
 
 class QuizService {
-  final HttpService httpService;
+  Future<List<Quiz>> fetchQuizzes() async {
+    final response = await http.get(Uri.parse('${Constants.BASE_URL}quiz/get-all-quizzes'));
 
-  QuizService({required this.httpService});
-
-  Future<List<dynamic>> getAllQuizzes() async {
-    try {
-      final response = await httpService.get("quiz/get-all-quizzes");
-      if (response.statusCode == 200) {
-        List<dynamic> quizzes = jsonDecode(response.body);
-        return quizzes; 
-      } else {
-        throw Exception('Failed to load quizzes');
-      }
-    } catch (e) {
-      rethrow;
+    if (response.statusCode == 200) {
+      print('API response: ${response.body}');
+      List<dynamic> data = json.decode(response.body);  //Chuyển đổi chuỗi JSON nhận được thành một đối tượng Dart
+      return data.map((json) => Quiz.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load quizzes');
     }
   }
 }

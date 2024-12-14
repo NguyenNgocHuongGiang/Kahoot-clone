@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:kahoot_clone/providers/auth_provider.dart';
+import 'package:kahoot_clone/services/auth_service.dart';
 import 'package:kahoot_clone/view/discovery/discovery_page.dart';
 import 'package:kahoot_clone/view/home/homepage.dart';
 import 'package:kahoot_clone/view/quiz/create_quiz.dart';
 import 'package:kahoot_clone/view/quiz/join_quiz.dart';
 import 'package:kahoot_clone/view/user/user.dart';
+import 'package:provider/provider.dart';
 
 class MainTemplate extends StatefulWidget {
   const MainTemplate({super.key});
@@ -24,7 +27,16 @@ class _MainTemplateState extends State<MainTemplate> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Tải lại thông tin người dùng từ SharedPreferences nếu có
+    context.read<AuthProvider>().loadUserData();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -72,9 +84,18 @@ class _MainTemplateState extends State<MainTemplate> {
             icon: Icon(Icons.create),
             label: 'Create',
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'User',
+          BottomNavigationBarItem(
+            icon: authProvider.isAuthenticated
+                ? CircleAvatar(
+                  radius: 14.0,
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                    child: Text(authProvider.userId![0].toUpperCase(), style: const TextStyle(
+                      fontSize: 14.0
+                    ),), // Hiển thị chữ cái đầu tiên của tên
+                  )
+                : const Icon(Icons.login), // Biểu tượng mặc định nếu chưa đăng nhập
+            label: authProvider.isAuthenticated ? 'User' : 'Login', // Hiển thị tên người dùng hoặc 'Login'
           ),
         ],
       ),

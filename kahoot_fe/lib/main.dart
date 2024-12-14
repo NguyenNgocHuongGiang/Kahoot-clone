@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:kahoot_clone/providers/auth_provider.dart';
+import 'package:kahoot_clone/providers/quiz_provider.dart';
+import 'package:provider/provider.dart';
 import 'routes/app_routes.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => QuizProvider()),
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -13,10 +23,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false, // tat debug tren goc
-      // theme: ThemeData(
-      //   primarySwatch: const Color.fromARGB(255, 255, 111, 0),
-      // ),
-      initialRoute: AppRoutes.login, // Đặt màn hình đầu tiên là LoginPage
+      initialRoute: AppRoutes.home, // Đặt màn hình đầu tiên là LoginPage
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }

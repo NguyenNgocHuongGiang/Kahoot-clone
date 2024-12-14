@@ -3,11 +3,11 @@ import 'package:kahoot_clone/templates/MainTemplate/main_template.dart';
 // import 'package:kahoot_clone/view/home/homepage.dart';
 
 class AppRoutes {
-  static const String login = '/login';
+  static const String home = '/';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case login:
+      case home:
         return MaterialPageRoute(builder: (_) =>  const MainTemplate());
       // Add other routes here
       default:
