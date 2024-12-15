@@ -28,7 +28,8 @@ class AuthService {
 
       return token;
     } else {
-      throw Exception('Failed to login, status code: ${response.statusCode}');
+      final errorResponse = json.decode(response.body);
+      throw Exception(errorResponse['message'].split(':')[1].trim());
     }
   }
 }

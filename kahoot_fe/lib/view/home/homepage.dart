@@ -7,7 +7,19 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Quiz Fox',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.red,
+        elevation: 0,
+        leading: null,
+        automaticallyImplyLeading: false,
+      ),
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -40,8 +52,7 @@ class HomePage extends StatelessWidget {
                         },
                         child: const Text('Create account'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors
-                              .white, // Use 'backgroundColor' instead of 'primary'
+                          backgroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -62,101 +73,11 @@ class HomePage extends StatelessWidget {
                     ),
                   ],
                 ),
-                Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurpleAccent,
-                        borderRadius: BorderRadius.circular(12),
-                        image: const DecorationImage(
-                          image: NetworkImage(
-                              'assets/images/carousel-slider-1.png'), // Replace with your image URL
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      height: 200,
-                    ),
-                    Positioned(
-                      top: 20,
-                      left: 20,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle button press
-                        },
-                        child: const Text('Step 1'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors
-                              .red, // Use 'backgroundColor' instead of 'primary'
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Positioned(
-                      bottom: 30,
-                      left: 20,
-                      child: Text(
-                        'Step 1: Learn to use Quiz Fox!',
-                        style:  TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurpleAccent,
-                        borderRadius: BorderRadius.circular(12),
-                        image: const DecorationImage(
-                          image: NetworkImage(
-                              'assets/images/carousel-slider-1.png'), // Replace with your image URL
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      height: 200,
-                    ),
-                    Positioned(
-                      top: 20,
-                      left: 20,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle button press
-                        },
-                        child: Text('Step 1'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors
-                              .red, // Use 'backgroundColor' instead of 'primary'
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Positioned(
-                      bottom: 30,
-                      left: 20,
-                      child: Text(
-                        'Step 1: Learn to use Quiz Fox!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+                // Repeat Stack for more carousel items
+                // You can use the same stack structure for other carousel items
               ],
               options: CarouselOptions(
-                autoPlay: false, // Set to false to disable autoplay
+                autoPlay: false, 
                 height: 200,
                 enlargeCenterPage: true,
               ),
@@ -164,6 +85,7 @@ class HomePage extends StatelessWidget {
 
             const SizedBox(height: 20.0),
 
+            // 'Top picks' Section
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -206,7 +128,7 @@ class HomePage extends StatelessWidget {
                     crossAxisSpacing: 16.0,
                     childAspectRatio: 0.75,
                   ),
-                  itemCount: 4, // Chỉ hiển thị 4 bài
+                  itemCount: 4, // Only 4 items displayed
                   itemBuilder: (context, index) {
                     return QuizCard(
                       index: index,
@@ -245,7 +167,7 @@ class HomePage extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      'Category ${index + 1}', // Category name dynamically
+                      'Category ${index + 1}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -257,14 +179,14 @@ class HomePage extends StatelessWidget {
               }),
               options: CarouselOptions(
                 autoPlay: false,
-                height: 120, // Set appropriate height for the category slider
+                height: 120, 
                 enlargeCenterPage: true,
               ),
             ),
 
-            // Study Groups Section
-
             const SizedBox(height: 25.0),
+
+            // Study Groups Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -305,19 +227,18 @@ class HomePage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 70.0),
                   side: const BorderSide(
                       color: Color.fromARGB(160, 255, 255, 255),
-                      width: 2), // Add border
+                      width: 2), 
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: const Color.fromARGB(
-                      160, 255, 255, 255), // Transparent background
+                  backgroundColor: const Color.fromARGB(160, 255, 255, 255),
                 ),
                 child: const Text(
                   '+ New group',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey, // Text color matches border
+                    color: Colors.grey,
                   ),
                 ),
               ),
@@ -326,6 +247,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 20.0),
           ],
         ),
+      ),
     );
   }
 }

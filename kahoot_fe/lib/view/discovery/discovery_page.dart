@@ -22,7 +22,17 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Popular Quizzes')),
+      appBar: AppBar(
+        title: const Text(
+          'Discovery',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.red,
+        elevation: 0,
+        leading: null,
+        automaticallyImplyLeading: false,
+      ),
       body: Consumer<QuizProvider>(
         builder: (context, quizProvider, child) {
           if (quizProvider.isLoading) {

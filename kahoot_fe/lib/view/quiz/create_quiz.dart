@@ -38,22 +38,23 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
         // Nếu người dùng đã đăng nhập, hiển thị trang tạo quiz
         return Scaffold(
+          appBar: AppBar(
+        title: const Text(
+          'Create a new quiz',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.red,
+        elevation: 0,
+        leading: null,
+        automaticallyImplyLeading: false,
+      ),
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Create a New Quiz',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
                   // Quiz Name Input
                   TextField(
                     controller: quizNameController,

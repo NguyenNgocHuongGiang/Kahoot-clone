@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kahoot_clone/providers/auth_provider.dart';
-import 'package:kahoot_clone/services/auth_service.dart';
 import 'package:kahoot_clone/view/discovery/discovery_page.dart';
 import 'package:kahoot_clone/view/home/homepage.dart';
 import 'package:kahoot_clone/view/quiz/create_quiz.dart';
@@ -39,17 +38,6 @@ class _MainTemplateState extends State<MainTemplate> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Quiz Fox',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.red,
-        elevation: 0,
-        leading: null,
-        automaticallyImplyLeading: false,
-      ),
       body: _tabs[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -95,7 +83,7 @@ class _MainTemplateState extends State<MainTemplate> {
                     ),), // Hiển thị chữ cái đầu tiên của tên
                   )
                 : const Icon(Icons.login), // Biểu tượng mặc định nếu chưa đăng nhập
-            label: authProvider.isAuthenticated ? 'User' : 'Login', // Hiển thị tên người dùng hoặc 'Login'
+            label: authProvider.isAuthenticated ? 'User' : 'Library', // Hiển thị tên người dùng hoặc 'Login'
           ),
         ],
       ),

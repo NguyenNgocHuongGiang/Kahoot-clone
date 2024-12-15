@@ -17,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   String email = '';
   String password = '';
+  String? _errorMessage;  // Add an error message variable
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +92,16 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 8.0),
 
+            // Error message display
+            if (_errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  _errorMessage!,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+
             // Remember me & Forgot password
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,23 +139,31 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: ()  {
+                onPressed: () async {
                   if (_formKey.currentState?.validate() == true) {
-                    try {
-                      // Gọi phương thức login từ AuthProvider
-                       context.read<AuthProvider>().login(email, password);
+                    // Clear previous error message
+                    setState(() {
+                      _errorMessage = null;
+                    });
 
-                      // Hiển thị thông báo thành công khi đăng nhập thành công
+                    // Call the login method from AuthProvider
+                    String? error = await context
+                        .read<AuthProvider>()
+                        .login(email, password);
+
+                    if (error != null) {
+                      // Show error message if login fails
+                      setState(() {
+                        _errorMessage = error;
+                      });
+                    } else {
+                      // Show success message
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Logic Successfully!')),
+                        const SnackBar(content: Text('Login Successful!')),
                       );
 
-                     Navigator.pushReplacementNamed(context, '/');
-                    } catch (e) {
-                      // Hiển thị thông báo lỗi khi có sự cố trong quá trình đăng nhập
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(e.toString())),
-                      );
+                      // Navigate to the home page or desired page
+                      Navigator.pushReplacementNamed(context, '/');
                     }
                   }
                 },

@@ -27,10 +27,10 @@ export class QuizController {
   }
 
   @Get('/get-all-quizzes')
-  @ApiResponse({ status: HttpStatus.OK, description: 'get successfullly' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Get successfullly' })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'internal server',
+    description: 'Internal Server',
   })
   async findAll(@Res() res: Response): Promise<Response<QuizDto[]>> {
     try {

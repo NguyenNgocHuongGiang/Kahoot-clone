@@ -8,8 +8,11 @@ CREATE TABLE `Users` (
     `email` VARCHAR(100) NOT NULL UNIQUE,
     `password` VARCHAR(255) NOT NULL,
     `full_name` VARCHAR(100),
+    `phone` VARCHAR(15), 
+    `avatar` VARCHAR(255), 
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 CREATE TABLE `Quizzes` (
     `quiz_id` INT AUTO_INCREMENT PRIMARY KEY,

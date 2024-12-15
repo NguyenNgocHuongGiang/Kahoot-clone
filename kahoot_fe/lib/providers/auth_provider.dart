@@ -11,14 +11,15 @@ class AuthProvider with ChangeNotifier {
 
   bool get isAuthenticated => _userId != null; // Kiểm tra xem người dùng đã đăng nhập chưa
 
-  Future<void> login(String email, String password) async {
+  Future<String?> login(String email, String password) async {
     try {
       _token = await AuthService().login(email, password);
       final prefs = await SharedPreferences.getInstance();
       _userId = prefs.getString('user_id'); // Lấy userId từ SharedPreferences
-      notifyListeners(); // Cập nhật UI khi token và userId thay đổi
+      notifyListeners();// Cập nhật UI khi token và userId thay đổi
+      return null; 
     } catch (e) {
-      rethrow;
+      return e.toString();
     }
   }
 

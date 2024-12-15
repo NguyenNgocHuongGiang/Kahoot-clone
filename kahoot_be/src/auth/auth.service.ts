@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
@@ -16,7 +16,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, password, full_name, username } = registerDto;
+    const { email, password, full_name, username, avatar } = registerDto;
 
     const userExists = await this.prisma.users.findUnique({
       where: { email },
@@ -26,44 +26,51 @@ export class AuthService {
       throw new Error('User already exists');
     }
 
+    const defaultAvatar = '/images/default-avatar.jpg';
+
     const userNew = await this.prisma.users.create({
       data: {
         full_name: full_name,
         email: email,
         password: bcrypt.hashSync(password, 10),
         username: username || '',
+        avatar: defaultAvatar,
       },
     });
 
     return userNew;
   }
 
-  async login(body:LoginDto):Promise<string>{
+  async login(body: LoginDto): Promise<string> {
     try {
-        const {email, password} = body
+      const { email, password } = body;
 
-        const checkUser = await this.prisma.users.findFirst({
-            where: {email}
-        })
-        if(!checkUser){
-            throw new BadRequestException("Email is incorrect");
-        }
-    
-        const checkPass = bcrypt.compareSync(password, checkUser.password)
-        if(!checkPass){
-            throw new BadRequestException("Password is incorrect");
-        }
-        
-        const token = this.jwtService.sign(
-            {data: {userId: checkUser.user_id}},
-            {
-                expiresIn: "30m",
-                secret: this.configService.get("SECRET_KEY")
-            }
-        )
-        return token
+      const checkUser = await this.prisma.users.findFirst({
+        where: { email },
+      });
+      if (!checkUser) {
+        throw new BadRequestException('Email is incorrect');
+      }
+
+      const checkPass = bcrypt.compareSync(password, checkUser.password);
+      if (!checkPass) {
+        throw new BadRequestException('Password is incorrect');
+      }
+
+      const token = this.jwtService.sign(
+        { data: { userId: checkUser.user_id } },
+        {
+          expiresIn: '30m',
+          secret: this.configService.get('SECRET_KEY'),
+        },
+      );
+      return token;
     } catch (error) {
-        throw new Error(error)
+      if (error instanceof BadRequestException) {
+        throw error; 
+      } else {
+        throw new InternalServerErrorException('An error occurred during login');
+      }
     }
-}
+  }
 }

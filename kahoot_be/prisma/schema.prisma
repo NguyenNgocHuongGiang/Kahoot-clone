@@ -159,6 +159,8 @@ model Users {
   email          String           @unique(map: "email") @db.VarChar(100)
   password       String           @db.VarChar(255)
   full_name      String?          @db.VarChar(100)
+  phone          String?  
+  avatar         String?
   created_at     DateTime?        @default(now()) @db.Timestamp(0)
   GroupMembers   GroupMembers[]
   GroupMessages  GroupMessages[]
