@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kahoot_clone/models/quiz_model.dart';
-import 'package:kahoot_clone/services/quiz_service.dart';
+import 'package:kahoot_clone/services/quiz/quiz_model.dart';
+import 'package:kahoot_clone/services/quiz/quiz_service.dart';
 
 class QuizProvider with ChangeNotifier {
   List<Quiz> _quizzes = [];
@@ -16,7 +16,6 @@ class QuizProvider with ChangeNotifier {
     try {
       _quizzes = await QuizService().fetchQuizzes();
     } catch (e) {
-      // Handle error
       print('Error fetching quizzes: $e');
     }
 

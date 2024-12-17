@@ -25,11 +25,12 @@ class AuthService {
       // Lưu token và userId vào SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', decodedToken['data']['userId'].toString()); // Lưu userId
+      await prefs.setString('token', token); // Lưu token
 
       return token;
     } else {
       final errorResponse = json.decode(response.body);
-      throw Exception(errorResponse['message'].split(':')[1].trim());
+      throw Exception(errorResponse['message']);
     }
   }
 }

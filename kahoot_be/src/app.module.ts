@@ -16,7 +16,7 @@ import { join } from 'path';
     QuizModule, 
     ConfigModule.forRoot({isGlobal: true}), 
     AuthModule, 
-    UserModule // load bien moi truong
+    UserModule 
   ],
   controllers: [AppController],
   providers: [AppService],

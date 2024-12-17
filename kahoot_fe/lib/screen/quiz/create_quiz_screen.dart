@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kahoot_clone/common/common.dart';
-import 'package:kahoot_clone/view/authentication/login_page.dart';
+import 'package:kahoot_clone/screen/authentication/login_screen.dart';
 
 class CreateQuizPage extends StatefulWidget {
   const CreateQuizPage({super.key});

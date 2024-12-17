@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kahoot_clone/providers/auth_provider.dart';
 import 'package:kahoot_clone/providers/quiz_provider.dart';
+import 'package:kahoot_clone/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'routes/app_routes.dart';
 
@@ -10,6 +11,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => QuizProvider()),
         ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: const MyApp(),
     ),

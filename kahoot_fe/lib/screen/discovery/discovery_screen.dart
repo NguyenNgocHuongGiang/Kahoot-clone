@@ -1,6 +1,6 @@
 import 'package:kahoot_clone/components/quiz_card.dart'; // Import QuizCard widget
 import 'package:flutter/material.dart';
-import 'package:kahoot_clone/models/quiz_model.dart';
+import 'package:kahoot_clone/services/quiz/quiz_model.dart';
 import 'package:kahoot_clone/providers/quiz_provider.dart';
 import 'package:provider/provider.dart';
 

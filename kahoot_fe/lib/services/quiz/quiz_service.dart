@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:kahoot_clone/models/quiz_model.dart';  // Đảm bảo rằng đường dẫn đúng tới file quiz.dart
+import 'package:kahoot_clone/services/quiz/quiz_model.dart';  // Đảm bảo rằng đường dẫn đúng tới file quiz.dart
 import 'package:kahoot_clone/common/constants.dart'; // Đảm bảo rằng đường dẫn đúng tới file constants.dart
 
 class QuizService {

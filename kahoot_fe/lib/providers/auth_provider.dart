@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kahoot_clone/services/auth_service.dart';
+import 'package:kahoot_clone/services/auth/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -16,6 +16,7 @@ class AuthProvider with ChangeNotifier {
       _token = await AuthService().login(email, password);
       final prefs = await SharedPreferences.getInstance();
       _userId = prefs.getString('user_id'); // Lấy userId từ SharedPreferences
+      _token = prefs.getString('token'); // Lấy userId từ SharedPreferences
       notifyListeners();// Cập nhật UI khi token và userId thay đổi
       return null; 
     } catch (e) {

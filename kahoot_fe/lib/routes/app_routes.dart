@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kahoot_clone/templates/MainTemplate/main_template.dart';
+import 'package:kahoot_clone/layout/main_layout.dart';
 // import 'package:kahoot_clone/view/home/homepage.dart';
 
 class AppRoutes {

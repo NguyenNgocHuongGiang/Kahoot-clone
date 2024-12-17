@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kahoot_clone/templates/AuthTemplate/auth_template.dart';
+import 'package:kahoot_clone/layout/auth_layout.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});

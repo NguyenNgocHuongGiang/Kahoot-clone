@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kahoot_clone/providers/auth_provider.dart';
-import 'package:kahoot_clone/templates/AuthTemplate/auth_template.dart';
-import 'package:kahoot_clone/view/authentication/register_page.dart';
+import 'package:kahoot_clone/layout/auth_layout.dart';
+import 'package:kahoot_clone/screen/authentication/register_screen.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,7 +17,25 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   String email = '';
   String password = '';
-  String? _errorMessage;  // Add an error message variable
+
+  // Function to show error dialog
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,16 +110,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 8.0),
 
-            // Error message display
-            if (_errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Text(
-                  _errorMessage!,
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-
             // Remember me & Forgot password
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,28 +149,28 @@ class _LoginPageState extends State<LoginPage> {
               child: ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState?.validate() == true) {
-                    // Clear previous error message
-                    setState(() {
-                      _errorMessage = null;
-                    });
-
-                    // Call the login method from AuthProvider
                     String? error = await context
                         .read<AuthProvider>()
                         .login(email, password);
 
                     if (error != null) {
-                      // Show error message if login fails
-                      setState(() {
-                        _errorMessage = error;
-                      });
-                    } else {
-                      // Show success message
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Login Successful!')),
+                        SnackBar(
+                          content: Text(error.split(':')[1].trim()),
+                          duration: const Duration(seconds: 3),
+                          backgroundColor: Colors.red, 
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Login successfully!'),
+                          duration: Duration(seconds: 3),
+                          backgroundColor:
+                              Colors.green,
+                        ),
                       );
 
-                      // Navigate to the home page or desired page
                       Navigator.pushReplacementNamed(context, '/');
                     }
                   }

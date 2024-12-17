@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:kahoot_clone/providers/auth_provider.dart';
-import 'package:kahoot_clone/view/discovery/discovery_page.dart';
-import 'package:kahoot_clone/view/home/homepage.dart';
-import 'package:kahoot_clone/view/quiz/create_quiz.dart';
-import 'package:kahoot_clone/view/quiz/join_quiz.dart';
-import 'package:kahoot_clone/view/user/user.dart';
+import 'package:kahoot_clone/screen/discovery/discovery_screen.dart';
+import 'package:kahoot_clone/screen/home/home_screen.dart';
+import 'package:kahoot_clone/screen/quiz/create_quiz_screen.dart';
+import 'package:kahoot_clone/screen/quiz/join_quiz_screen.dart';
+import 'package:kahoot_clone/screen/library/library_screen.dart';
 import 'package:provider/provider.dart';
 
 class MainTemplate extends StatefulWidget {
-  const MainTemplate({super.key});
+  final int initialIndex; // Thêm tham số để chọn tab khởi tạo
+  const MainTemplate({super.key, this.initialIndex = 0});
 
   @override
   State<MainTemplate> createState() => _MainTemplateState();
 }
 
 class _MainTemplateState extends State<MainTemplate> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   final List<Widget> _tabs = [
     const HomePage(),
@@ -28,7 +29,7 @@ class _MainTemplateState extends State<MainTemplate> {
   @override
   void initState() {
     super.initState();
-    // Tải lại thông tin người dùng từ SharedPreferences nếu có
+    _currentIndex = widget.initialIndex; // Đặt tab khởi tạo từ tham số
     context.read<AuthProvider>().loadUserData();
   }
 
@@ -75,15 +76,16 @@ class _MainTemplateState extends State<MainTemplate> {
           BottomNavigationBarItem(
             icon: authProvider.isAuthenticated
                 ? CircleAvatar(
-                  radius: 14.0,
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                    child: Text(authProvider.userId![0].toUpperCase(), style: const TextStyle(
-                      fontSize: 14.0
-                    ),), // Hiển thị chữ cái đầu tiên của tên
+                    radius: 14.0,
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    child: Text(
+                      authProvider.userId![0].toUpperCase(),
+                      style: const TextStyle(fontSize: 14.0),
+                    ),
                   )
-                : const Icon(Icons.login), // Biểu tượng mặc định nếu chưa đăng nhập
-            label: authProvider.isAuthenticated ? 'User' : 'Library', // Hiển thị tên người dùng hoặc 'Login'
+                : const Icon(Icons.local_library_outlined),
+            label: authProvider.isAuthenticated ? 'User' : 'Library',
           ),
         ],
       ),
