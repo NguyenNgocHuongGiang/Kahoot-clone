@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:kahoot_clone/providers/auth_provider.dart'; // Import trang Profile
 import 'package:kahoot_clone/screen/library/user_profile_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:kahoot_clone/common/common.dart';
+import 'package:kahoot_clone/components/notification_login_modal.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -19,7 +21,8 @@ class _UserPageState extends State<UserPage> {
       appBar: AppBar(
         title: Text(
           _currentPage,
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style:
+              const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true,
         backgroundColor: Colors.red,
@@ -47,11 +50,10 @@ class _UserPageState extends State<UserPage> {
       case 'Profile':
         return Profile(onSave: () {
           setState(() {
-            _currentPage = 'Library'; 
+            _currentPage = 'Library';
           });
         });
 
-      
       default:
         return _buildLibrary();
     }
@@ -67,10 +69,22 @@ class _UserPageState extends State<UserPage> {
           ListTile(
             leading: const Icon(Icons.account_circle, color: Colors.deepPurple),
             title: const Text('Profile'),
-            onTap: () {
-              setState(() {
-                _currentPage = 'Profile'; 
-              });
+            onTap: () async {
+              final isLoggedIn = await checkUserLoginStatus();
+              if (isLoggedIn) {
+                setState(() {
+                  _currentPage = 'Profile';
+                });
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const NotificationLoginModal(
+                      message: 'You must login before view profile',
+                    );
+                  },
+                );
+              }
             },
           ),
           const Divider(),

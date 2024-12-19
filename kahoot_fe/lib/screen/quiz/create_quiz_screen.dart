@@ -16,6 +16,8 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
   late Future<bool> _isLoggedInFuture;
 
+  String quizVisibility = 'public'; // Default visibility is 'public'
+
   @override
   void initState() {
     super.initState();
@@ -32,23 +34,22 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
         }
 
         if (snapshot.hasError || !snapshot.hasData || !snapshot.data!) {
-          // Nếu người dùng chưa đăng nhập, chuyển hướng đến trang LoginPage
           return const LoginPage();
         }
 
-        // Nếu người dùng đã đăng nhập, hiển thị trang tạo quiz
+        // If the user is logged in, show the quiz creation page
         return Scaffold(
           appBar: AppBar(
-        title: const Text(
-          'Create a new quiz',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.red,
-        elevation: 0,
-        leading: null,
-        automaticallyImplyLeading: false,
-      ),
+            title: const Text(
+              'Create a new quiz',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            centerTitle: true,
+            backgroundColor: Colors.red,
+            elevation: 0,
+            leading: null,
+            automaticallyImplyLeading: false,
+          ),
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
             child: SingleChildScrollView(
@@ -94,6 +95,33 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                       prefixIcon: const Icon(Icons.timer, color: Colors.red),
                     ),
                   ),
+                  const SizedBox(height: 16),
+
+                  // Quiz Visibility Input (Public/Private)
+                  Row(
+                    children: [
+                      const Text(
+                        'Visibility:',
+                        style: TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                      const SizedBox(width: 16),
+                      DropdownButton<String>(
+                        value: quizVisibility,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            quizVisibility = newValue!;
+                          });
+                        },
+                        items: <String>['public', 'private']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 32),
 
                   // Create Quiz Button
@@ -112,7 +140,11 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                         return;
                       }
 
-                      // Navigate to Quiz Overview Page
+                      // Create the quiz with visibility and creator info
+                      final String creator = 'LoggedInUser'; // You can fetch this from your auth provider
+
+                      // You can now send this data to your backend or local storage
+                      // For now, we pass it to the next page
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -120,6 +152,8 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                             quizName: quizName,
                             quizDescription: quizDescription,
                             quizTime: quizTime,
+                            quizVisibility: quizVisibility,
+                            creator: creator,
                           ),
                         ),
                       );
@@ -150,12 +184,16 @@ class QuizOverviewPage extends StatelessWidget {
   final String quizName;
   final String quizDescription;
   final String quizTime;
+  final String quizVisibility;
+  final String creator;
 
   const QuizOverviewPage({
     super.key,
     required this.quizName,
     required this.quizDescription,
     required this.quizTime,
+    required this.quizVisibility,
+    required this.creator,
   });
 
   @override
@@ -192,6 +230,16 @@ class QuizOverviewPage extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               'Duration: $quizTime minutes',
+              style: const TextStyle(fontSize: 18, color: Colors.black87),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Visibility: $quizVisibility',
+              style: const TextStyle(fontSize: 18, color: Colors.black87),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Creator: $creator',
               style: const TextStyle(fontSize: 18, color: Colors.black87),
             ),
             const SizedBox(height: 30),

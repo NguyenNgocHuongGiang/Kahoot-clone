@@ -26,4 +26,29 @@ class UserService {
       throw Exception(errorResponse['message']);
     }
   }
+
+Future<Map<String, dynamic>> updateUser(Map<String, dynamic> updatedData) async {
+  final prefs = await SharedPreferences.getInstance();
+  String? userId = prefs.getString('user_id');
+
+  if (userId == null) {
+    throw Exception('User ID not found in SharedPreferences.');
+  }
+
+  final response = await http.put(
+    Uri.parse('${Constants.BASE_URL}user/$userId'),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: json.encode(updatedData),
+  );
+
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    final errorResponse = json.decode(response.body);
+    throw Exception(errorResponse['message']);
+  }
+}
+
 }

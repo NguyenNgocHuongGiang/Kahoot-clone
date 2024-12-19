@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaClient } from '@prisma/client';
 import { User } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -31,10 +32,33 @@ export class UserService {
       throw new Error('User not found');
     }
 
-    return this.prisma.users.update({
-      where: { user_id: id },
-      data: updateData,
-    });
+    if (updateData.password) {
+      if (user.password === updateData.password) {
+        const { password, ...rest } = updateData;
+        const updateUser = {
+          ...rest,
+        };
+        return this.prisma.users.update({
+          where: { user_id: id },
+          data: updateUser,
+        });
+      } else {
+        const hashNewPassword = bcrypt.hashSync(updateData.password, 10);
+        const updateUser = {
+          ...updateData,
+          password: hashNewPassword,
+        };
+        return this.prisma.users.update({
+          where: { user_id: id },
+          data: updateUser,
+        });
+      }
+    } else {
+      return this.prisma.users.update({
+        where: { user_id: id },
+        data: updateData,
+      });
+    }
   }
 
   // remove(id: number) {

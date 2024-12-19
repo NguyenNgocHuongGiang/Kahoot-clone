@@ -2,13 +2,16 @@ import { IsString, IsEmail, IsOptional, IsPhoneNumber, Matches } from 'class-val
 
 export class CreateUserDto {
   @IsString()
-  username: string;
+  @IsOptional()
+  username?: string;
 
   @IsEmail()
-  email: string;
+  @IsOptional()
+  email?: string;
 
   @IsString()
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @IsOptional()
   @IsString()

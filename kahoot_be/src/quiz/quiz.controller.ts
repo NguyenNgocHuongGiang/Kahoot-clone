@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   HttpStatus,
@@ -21,10 +21,23 @@ import { QuizDto } from './dto/quiz.dto';
 export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
-  @Post()
-  create(@Body() createQuizDto: CreateQuizDto) {
-    return this.quizService.create(createQuizDto);
+  @Post('/')
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Create successfullly' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server',
+  })
+  async create(@Res() res: Response, @Body() createQuizDto: CreateQuizDto): Promise<Response<QuizDto>> {
+    try {
+      let newQuiz = await this.quizService.create(createQuizDto);
+      return res.status(HttpStatus.CREATED).json(newQuiz);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
   }
+
 
   @Get('/get-all-quizzes')
   @ApiResponse({ status: HttpStatus.OK, description: 'Get successfullly' })
@@ -43,18 +56,18 @@ export class QuizController {
     }
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.quizService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.quizService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateQuizDto: UpdateQuizDto) {
-    return this.quizService.update(+id, updateQuizDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateQuizDto: UpdateQuizDto) {
+  //   return this.quizService.update(+id, updateQuizDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.quizService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.quizService.remove(+id);
+  // }
 }

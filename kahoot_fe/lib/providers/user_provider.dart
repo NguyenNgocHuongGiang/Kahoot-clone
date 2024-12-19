@@ -23,6 +23,7 @@ class UserProvider extends ChangeNotifier {
 
   UserProvider() {
     fetchUserInfo();
+    updateUserInfo();
   }
 
   Future<void> fetchUserInfo() async {
@@ -46,9 +47,39 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  void updateUserInfo(String username, String email) {
-    _username = username;
-    _email = email;
-    notifyListeners();
+  Future<void> updateUserInfo({
+    String? username,
+    String? email,
+    String? full_name,
+    String? password,
+    String? phone,
+  }) async {
+    final Map<String, dynamic> updatedData = {};
+
+    if (username != null) updatedData['username'] = username;
+    if (email != null) updatedData['email'] = email;
+    if (full_name != null) updatedData['full_name'] = full_name;
+    if (password != null) updatedData['password'] = password;
+    if (phone != null) updatedData['phone'] = phone;
+
+    if (updatedData.isEmpty) return; // No updates to make
+
+    try {
+      // Call the service function here
+      final response = await  UserService().updateUser(updatedData);
+
+      // Update local state with successful server response
+      if (response.containsKey('username')) _username = response['username'];
+      if (response.containsKey('email')) _email = response['email'];
+      if (response.containsKey('full_name')) _full_name = response['full_name'];
+      if (response.containsKey('password')) _password = response['password'];
+      if (response.containsKey('phone')) _phone = response['phone'];
+
+      // Notify listeners to update UI
+      notifyListeners();
+    } catch (e) {
+      print('Error updating user info: $e');
+      throw e; // Optionally, throw the error so it can be handled in the UI
+    }
   }
 }

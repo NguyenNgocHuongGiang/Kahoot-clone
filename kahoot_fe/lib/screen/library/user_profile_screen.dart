@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:kahoot_clone/providers/user_provider.dart';
-import 'package:image_picker/image_picker.dart';
 
 class Profile extends StatelessWidget {
   final VoidCallback onSave;
@@ -35,6 +35,7 @@ class Profile extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 32),
+            
             // Avatar
             GestureDetector(
               onTap: () async {
@@ -43,17 +44,17 @@ class Profile extends StatelessWidget {
                   source: ImageSource.gallery,
                 );
                 if (pickedImage != null) {
-                  // userProvider.updateAvatar(pickedImage.path); // Cập nhật avatar
+                  // userProvider.updateAvatar(pickedImage.path); 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text('Ảnh đại diện đã được thay đổi')),
-                  );
+                        content: Text('Ảnh đại diện đã được thay đổi')
+                        )
+                    );
                 }
               },
               child: CircleAvatar(
                 radius: 50,
-                backgroundImage: 
-                userProvider.avatar.isNotEmpty
+                backgroundImage: userProvider.avatar.isNotEmpty
                     ? NetworkImage(userProvider.avatar)
                     : const NetworkImage('assets/images/default-avatar.jpg')
                         as ImageProvider,
@@ -72,64 +73,55 @@ class Profile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Fullname
+            
+            // Fullname 
             TextField(
               controller: fullNameController,
               decoration: const InputDecoration(
                 labelText: 'Fullname',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) =>
-                  userProvider.updateUserInfo(value, userProvider.full_name),
             ),
             const SizedBox(height: 16),
 
-            // Email
+            // Email 
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) =>
-                  userProvider.updateUserInfo(userProvider.email, value),
             ),
             const SizedBox(height: 16),
 
-            // Password
+            // Password 
             TextField(
               controller: passwordController,
+              obscureText: true,
               decoration: const InputDecoration(
                 labelText: 'Password',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) =>
-                  userProvider.updateUserInfo(value, userProvider.password),
             ),
             const SizedBox(height: 16),
 
-            // Username
+            // Username 
             TextField(
               controller: usernameController,
               decoration: const InputDecoration(
                 labelText: 'Username',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) =>
-                  userProvider.updateUserInfo(value, userProvider.username),
             ),
             const SizedBox(height: 16),
 
-            // Phone number
+            // Phone number 
             TextField(
               controller: phoneController,
               decoration: const InputDecoration(
                 labelText: 'Phone number',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) =>
-                  userProvider.updateUserInfo(value, userProvider.phone),
             ),
             const SizedBox(height: 16),
 
@@ -139,10 +131,33 @@ class Profile extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Thông tin đã được cập nhật')),
-                  );
-                  onSave(); // Gọi callback
+                  final updatedData = {
+                    'username': usernameController.text,
+                    'email': emailController.text,
+                    'full_name': fullNameController.text,
+                    'password': passwordController.text,
+                    'phone': phoneController.text,
+                  };
+
+                  // Cập nhật vào provider
+                  try {
+                    userProvider.updateUserInfo(
+                      username: updatedData['username']!,
+                      email: updatedData['email']!,
+                      full_name: updatedData['full_name']!,
+                      password: updatedData['password']!,
+                      phone: updatedData['phone']!,
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Update successfully')),
+                    );
+                  } catch (error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi: $error')),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
