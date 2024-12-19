@@ -35,6 +35,17 @@ export class QuizService {
     }
   }
 
+  async findManyByUserId(user_id: string) {
+    try {
+      let quizzes = await this.prisma.quizzes.findMany({
+        where:{ creator: user_id}
+      });
+      return quizzes.map((quiz) => plainToClass(QuizDto, quiz));
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} quiz`;
   }

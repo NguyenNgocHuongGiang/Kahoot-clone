@@ -8,13 +8,15 @@ import {
   Delete,
   HttpStatus,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { QuizDto } from './dto/quiz.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @ApiTags('Quizzes')
 @Controller('quiz')
@@ -22,11 +24,13 @@ export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
   @Post('/')
+  @ApiBearerAuth()
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Create successfullly' })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal Server',
   })
+  @UseGuards(AuthGuard)
   async create(@Res() res: Response, @Body() createQuizDto: CreateQuizDto): Promise<Response<QuizDto>> {
     try {
       let newQuiz = await this.quizService.create(createQuizDto);
@@ -55,6 +59,26 @@ export class QuizController {
         .json({ message: error.message });
     }
   }
+
+  @Get('/get-quizzes-by-user-id/:userId')
+  @ApiResponse({ status: HttpStatus.OK, description: 'Get successfullly' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server',
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  async findManyByUserId(@Res() res: Response, @Param('userId') userId: string ): Promise<Response<QuizDto[]>> {
+    try {
+      let quizzes = await this.quizService.findManyByUserId(userId);
+      return res.status(HttpStatus.OK).json(quizzes);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
+
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

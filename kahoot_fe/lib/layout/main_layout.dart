@@ -23,7 +23,7 @@ class _MainTemplateState extends State<MainTemplate> {
     const DiscoveryPage(),
     const JoinQuizPage(),
     const CreateQuizPage(),
-    const UserPage(),
+    const LibraryScreen(),
   ];
 
   @override

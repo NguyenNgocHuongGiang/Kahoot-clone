@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:kahoot_clone/providers/auth_provider.dart'; // Import trang Profile
+import 'package:kahoot_clone/screen/library/my_quizzies_screen.dart';
 import 'package:kahoot_clone/screen/library/user_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:kahoot_clone/common/common.dart';
 import 'package:kahoot_clone/components/notification_login_modal.dart';
 
-class UserPage extends StatefulWidget {
-  const UserPage({super.key});
+class LibraryScreen extends StatefulWidget {
+  const LibraryScreen({super.key});
 
   @override
-  State<UserPage> createState() => _UserPageState();
+  State<LibraryScreen> createState() => _LibraryScreenState();
 }
 
-class _UserPageState extends State<UserPage> {
-  String _currentPage = 'Library'; // Mặc định là Library
+class _LibraryScreenState extends State<LibraryScreen> {
+  String _currentPage = 'Library';
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +55,13 @@ class _UserPageState extends State<UserPage> {
           });
         });
 
+      case 'MyQuizzies':
+        return MyQuizziesScreen(onSave: () {
+          setState(() {
+            _currentPage = 'Library';
+          });
+        });
+
       default:
         return _buildLibrary();
     }
@@ -72,8 +80,11 @@ class _UserPageState extends State<UserPage> {
             onTap: () async {
               final isLoggedIn = await checkUserLoginStatus();
               if (isLoggedIn) {
-                setState(() {
-                  _currentPage = 'Profile';
+                // Delay setState to avoid calling it during the build phase
+                Future.delayed(Duration.zero, () {
+                  setState(() {
+                    _currentPage = 'Profile';
+                  });
                 });
               } else {
                 showDialog(
@@ -81,6 +92,32 @@ class _UserPageState extends State<UserPage> {
                   builder: (BuildContext context) {
                     return const NotificationLoginModal(
                       message: 'You must login before view profile',
+                    );
+                  },
+                );
+              }
+            },
+          ),
+          const Divider(),
+
+          ListTile(
+            leading: const Icon(Icons.quiz_outlined, color: Colors.green),
+            title: const Text('My Quizzies'),
+            onTap: () async {
+              final isLoggedIn = await checkUserLoginStatus();
+              if (isLoggedIn) {
+                // Delay setState to avoid calling it during the build phase
+                Future.delayed(Duration.zero, () {
+                  setState(() {
+                    _currentPage = 'MyQuizzies';
+                  });
+                });
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const NotificationLoginModal(
+                      message: 'You must login before view your quizzies',
                     );
                   },
                 );

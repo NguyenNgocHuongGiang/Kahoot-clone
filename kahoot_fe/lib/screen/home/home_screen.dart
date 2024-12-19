@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:kahoot_clone/components/quiz_card.dart';
+import 'package:kahoot_clone/layout/main_layout.dart';
+import 'package:kahoot_clone/screen/discovery/discovery_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -105,7 +107,13 @@ class HomePage extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Navigate to see all page
+                          // Navigate to DiscoveryPage
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MainTemplate(initialIndex: 1),
+                            ),
+                          );
                         },
                         child: const Text(
                           'See All',
