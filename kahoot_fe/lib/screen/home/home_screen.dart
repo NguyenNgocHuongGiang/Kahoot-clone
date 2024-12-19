@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:kahoot_clone/components/quiz_card.dart';
 import 'package:kahoot_clone/layout/main_layout.dart';
-import 'package:kahoot_clone/screen/discovery/discovery_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

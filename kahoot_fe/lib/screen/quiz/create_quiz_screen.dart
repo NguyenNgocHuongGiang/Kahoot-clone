@@ -171,7 +171,6 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
 
                       try {
-                        Quiz createdQuiz =
                             await QuizService().createQuiz(newQuiz, token);
                       
                       } catch (e) {
