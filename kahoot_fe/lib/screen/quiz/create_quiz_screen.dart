@@ -147,7 +147,12 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                           quizTime.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Please fill in all the fields!', style: TextStyle(backgroundColor: Colors.red, color: Colors.white),),
+                            content: Text(
+                              'Please fill in all the fields!',
+                              style: TextStyle(
+                                  backgroundColor: Colors.red,
+                                  color: Colors.white),
+                            ),
                           ),
                         );
                         return;
@@ -157,27 +162,25 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                       String? token = prefs.getString('token');
                       String? userId = prefs.getString('user_id');
 
-                      if(token != null && userId != null){
+                      if (token != null && userId != null) {
                         final newQuiz = Quiz(
-                        title: quizName,
-                        description: quizDescription,
-                        creator: userId,
-                        coverImage:
-                            'assets/images/default-quiz.png', 
-                        visibility: quizVisibility,
-                        category:
-                            'Math', 
-                      );
-
-
-                      try {
-                            await QuizService().createQuiz(newQuiz, token);
-                      
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed to create quiz: $e')),
+                          id: 0,
+                          title: quizName,
+                          description: quizDescription,
+                          creator: userId,
+                          coverImage: 'assets/images/default-quiz.png',
+                          visibility: quizVisibility,
+                          category: 'Math',
                         );
-                      }
+
+                        try {
+                          await QuizService().createQuiz(newQuiz, token);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Failed to create quiz: $e')),
+                          );
+                        }
                       }
                     },
                     style: ElevatedButton.styleFrom(

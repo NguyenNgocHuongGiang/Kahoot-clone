@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:kahoot_clone/services/quiz/quiz_model.dart'; // Đảm bảo rằng đường dẫn đúng tới file quiz.dart
-import 'package:kahoot_clone/common/constants.dart'; // Đảm bảo rằng đường dẫn đúng tới file constants.dart
+import 'package:kahoot_clone/services/quiz/quiz_detail_model.dart';
+import 'package:kahoot_clone/services/quiz/quiz_model.dart'; 
+import 'package:kahoot_clone/common/constants.dart'; 
 
 class QuizService {
   Future<List<Quiz>> fetchQuizzes() async {
@@ -10,7 +11,7 @@ class QuizService {
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response
-          .body); //Chuyển đổi chuỗi JSON nhận được thành một đối tượng Dart
+          .body);
       return data.map((json) => Quiz.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load quizzes');
@@ -39,13 +40,28 @@ class QuizService {
       headers: {
       'Authorization': 'Bearer $token',
     }, 
-    Uri.parse('${Constants.BASE_URL}quiz/get-quizzes-by-user-id/${userId}'));
+    Uri.parse('${Constants.BASE_URL}quiz/get-quizzes-by-user-id/$userId'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
-      return data.map((quiz) => Quiz.fromJson(quiz)).toList();
+      return data.map((json) => Quiz.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load quizzes');
+    }
+  }
+
+   Future<QuizDetail> fetchQuizDetailById(int quizId) async {
+    final response = await http.get(
+      Uri.parse('${Constants.BASE_URL}quiz/$quizId'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return QuizDetail.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load quiz details');
     }
   }
 }

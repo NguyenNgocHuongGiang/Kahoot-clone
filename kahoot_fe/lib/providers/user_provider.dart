@@ -79,7 +79,7 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print('Error updating user info: $e');
-      throw e; // Optionally, throw the error so it can be handled in the UI
+      throw e; 
     }
   }
 }

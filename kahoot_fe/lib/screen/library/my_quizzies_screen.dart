@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kahoot_clone/screen/quiz/quiz_detail_screen.dart';
 import 'package:kahoot_clone/services/quiz/quiz_model.dart';
 import 'package:kahoot_clone/providers/quiz_provider.dart';
 import 'package:provider/provider.dart';
@@ -16,13 +17,13 @@ class MyQuizziesScreen extends StatefulWidget {
 class _MyQuizziesScreenState extends State<MyQuizziesScreen> {
   String? _userId;
   String? _token;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
-
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -39,21 +40,48 @@ class _MyQuizziesScreenState extends State<MyQuizziesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(30),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search quizzes...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+              ),
+              onChanged: (query) {
+                setState(() {
+                  _searchQuery = query.toLowerCase();
+                });
+              },
+            ),
+          ),
+        ),
+      ),
       body: Consumer<QuizProvider>(
         builder: (context, quizProvider, child) {
           if (quizProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (quizProvider.ownQuizzes.isEmpty) {
-            return const Center(child: Text('No public quizzes available.'));
+          final filteredQuizzes = quizProvider.ownQuizzes.where((quiz) {
+            return quiz.title.toLowerCase().contains(_searchQuery);
+          }).toList();
+
+          if (filteredQuizzes.isEmpty) {
+            return const Center(child: Text('No quizzes found.'));
           }
 
           return ListView.builder(
-            itemCount: quizProvider.ownQuizzes.length,
+            itemCount: filteredQuizzes.length,
             itemBuilder: (context, index) {
-              Quiz quiz = quizProvider.ownQuizzes[index];
-              bool isLastItem = index == quizProvider.ownQuizzes.length - 1;
+              Quiz quiz = filteredQuizzes[index];
+              bool isLastItem = index == filteredQuizzes.length - 1;
 
               return Column(
                 children: [
@@ -70,12 +98,12 @@ class _MyQuizziesScreenState extends State<MyQuizziesScreen> {
                     subtitle: Text(quiz.description),
                     trailing: const Icon(Icons.arrow_forward_ios),
                     onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => QuizDetailPage(quizId: quiz.id),
-                      //   ),
-                      // );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => QuizDetailPage(quizId: quiz.id),
+                        ),
+                      );
                     },
                   ),
                   if (!isLastItem)
