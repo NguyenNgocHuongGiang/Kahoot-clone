@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
     const token = request.headers['authorization'];
 
     if (!token) {
-      throw new NotFoundException('Resource not found. Please login first.');
+      throw new NotFoundException('Unauthorized. Please login first.');
     }
 
     return true;

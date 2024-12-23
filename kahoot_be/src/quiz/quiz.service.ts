@@ -47,7 +47,16 @@ export class QuizService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} quiz`;
+    return this.prisma.quizzes.findUnique({
+      where: { quiz_id: id },
+      include: {
+        Questions: {
+          include: {
+            Options: true, 
+          },
+        }
+      },
+    });
   }
 
   update(id: number, updateQuizDto: UpdateQuizDto) {

@@ -45,4 +45,6 @@ export class AuthController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
+
+  
 }

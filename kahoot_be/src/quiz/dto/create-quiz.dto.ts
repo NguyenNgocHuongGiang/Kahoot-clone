@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateQuizDto {
-  // @ApiProperty()
-  // quiz_id: number;
-  
+export class CreateQuizDto { 
   @ApiProperty()
   title: string;
 

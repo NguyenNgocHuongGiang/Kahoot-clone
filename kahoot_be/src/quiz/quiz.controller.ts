@@ -80,10 +80,24 @@ export class QuizController {
   }
 
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.quizService.findOne(+id);
-  // }
+  @Get(':id')
+  @ApiResponse({ status: HttpStatus.OK, description: 'Get successfullly' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server',
+  })
+  @ApiBearerAuth()
+  // @UseGuards(AuthGuard)
+  async findOne(@Res() res: Response,@Param('id') id: number) {
+    try {
+      let quizzes = await this.quizService.findOne(+id);
+      return res.status(HttpStatus.OK).json(quizzes);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateQuizDto: UpdateQuizDto) {
