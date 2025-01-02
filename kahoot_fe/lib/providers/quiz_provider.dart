@@ -13,10 +13,11 @@ class QuizProvider with ChangeNotifier {
 
   Future<void> fetchQuizzes() async {
     _isLoading = true;
-    notifyListeners(); //thông báo cho các widget đang lắng nghe
+    notifyListeners(); 
 
     try {
       _quizzes = await QuizService().fetchQuizzes();
+      print(_quizzes);
     } catch (e) {
       print('Error fetching quizzes: $e');
     }

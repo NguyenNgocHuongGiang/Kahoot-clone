@@ -9,20 +9,21 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Quiz Fox',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        appBar: AppBar(
+          title: const Text(
+            'Quiz Fox',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.red,
+          elevation: 0,
+          leading: null,
+          automaticallyImplyLeading: false,
         ),
-        centerTitle: true,
-        backgroundColor: Colors.red,
-        elevation: 0,
-        leading: null,
-        automaticallyImplyLeading: false,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: ListView(
+          // child: Column(
+          shrinkWrap: true,
+          //   crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 25.0),
 
@@ -36,8 +37,8 @@ class HomePage extends StatelessWidget {
                         color: Colors.deepPurpleAccent,
                         borderRadius: BorderRadius.circular(12),
                         image: const DecorationImage(
-                          image: NetworkImage(
-                              'assets/images/carousel-slider-1.png'), // Replace with your image URL
+                          image: AssetImage(
+                              'assets/images/carousel-slider-1.png'), // Use AssetImage for local images
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -78,7 +79,7 @@ class HomePage extends StatelessWidget {
                 // You can use the same stack structure for other carousel items
               ],
               options: CarouselOptions(
-                autoPlay: false, 
+                autoPlay: false,
                 height: 200,
                 enlargeCenterPage: true,
               ),
@@ -106,11 +107,11 @@ class HomePage extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Navigate to DiscoveryPage
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const MainTemplate(initialIndex: 1),
+                              builder: (context) =>
+                                  const MainTemplate(initialIndex: 1),
                             ),
                           );
                         },
@@ -128,6 +129,8 @@ class HomePage extends StatelessWidget {
                 ),
                 GridView.builder(
                   shrinkWrap: true,
+                  physics:
+                      const NeverScrollableScrollPhysics(), 
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -135,13 +138,15 @@ class HomePage extends StatelessWidget {
                     crossAxisSpacing: 16.0,
                     childAspectRatio: 0.75,
                   ),
-                  itemCount: 4, // Only 4 items displayed
+                  itemCount: 4, // Chỉ hiển thị 4 mục
                   itemBuilder: (context, index) {
                     return QuizCard(
                       index: index,
                       imageUrl: 'assets/images/default-quiz.png',
                       title: 'Kahoot ${index + 1}',
                       description: 'This is a public Kahoot.',
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    width: MediaQuery.of(context).size.height * 0.2, 
                     );
                   },
                 ),
@@ -186,7 +191,7 @@ class HomePage extends StatelessWidget {
               }),
               options: CarouselOptions(
                 autoPlay: false,
-                height: 120, 
+                height: 120,
                 enlargeCenterPage: true,
               ),
             ),
@@ -233,8 +238,7 @@ class HomePage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 70.0),
                   side: const BorderSide(
-                      color: Color.fromARGB(160, 255, 255, 255),
-                      width: 2), 
+                      color: Color.fromARGB(160, 255, 255, 255), width: 2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -253,8 +257,7 @@ class HomePage extends StatelessWidget {
 
             const SizedBox(height: 20.0),
           ],
-        ),
-      ),
-    );
+          // ),
+        ));
   }
 }

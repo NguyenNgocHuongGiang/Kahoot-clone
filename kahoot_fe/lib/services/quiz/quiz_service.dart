@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:kahoot_clone/services/quiz/quiz_detail_model.dart';
-import 'package:kahoot_clone/services/quiz/quiz_model.dart'; 
-import 'package:kahoot_clone/common/constants.dart'; 
+import 'package:kahoot_clone/services/quiz/quiz_model.dart';
+import 'package:kahoot_clone/common/constants.dart';
 
 class QuizService {
   Future<List<Quiz>> fetchQuizzes() async {
@@ -10,8 +10,7 @@ class QuizService {
         await http.get(Uri.parse('${Constants.BASE_URL}quiz/get-all-quizzes'));
 
     if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response
-          .body);
+      List<dynamic> data = json.decode(response.body);
       return data.map((json) => Quiz.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load quizzes');
@@ -19,13 +18,22 @@ class QuizService {
   }
 
   Future<Quiz> createQuiz(Quiz newQuiz, String token) async {
+    final quizCreate = {
+      "title": newQuiz.title,
+      "description": newQuiz.description,
+      "creator": newQuiz.creator,
+      "cover_image": newQuiz.coverImage,
+      "visibility": newQuiz.visibility,
+      "category": newQuiz.category,
+    };
+
     final response = await http.post(
       Uri.parse('${Constants.BASE_URL}quiz'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: json.encode(newQuiz.toJson()),
+      body: json.encode(quizCreate),
     );
 
     if (response.statusCode == 201) {
@@ -36,11 +44,9 @@ class QuizService {
   }
 
   Future<List<Quiz>> fetchQuizzesByUserId(String userId, String token) async {
-    final response = await http.get(
-      headers: {
+    final response = await http.get(headers: {
       'Authorization': 'Bearer $token',
-    }, 
-    Uri.parse('${Constants.BASE_URL}quiz/get-quizzes-by-user-id/$userId'));
+    }, Uri.parse('${Constants.BASE_URL}quiz/get-quizzes-by-user-id/$userId'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
@@ -50,7 +56,7 @@ class QuizService {
     }
   }
 
-   Future<QuizDetail> fetchQuizDetailById(int quizId) async {
+  Future<QuizDetail> fetchQuizDetailById(int quizId) async {
     final response = await http.get(
       Uri.parse('${Constants.BASE_URL}quiz/$quizId'),
       headers: {

@@ -25,14 +25,22 @@ export class QuizController {
 
   @Post('/')
   @ApiBearerAuth()
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Create successfullly' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Create successfullly',
+  })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal Server',
   })
   @UseGuards(AuthGuard)
-  async create(@Res() res: Response, @Body() createQuizDto: CreateQuizDto): Promise<Response<QuizDto>> {
+  async create(
+    @Res() res: Response,
+    @Body() createQuizDto: CreateQuizDto,
+  ): Promise<Response<QuizDto>> {
     try {
+      console.log(createQuizDto);
+
       let newQuiz = await this.quizService.create(createQuizDto);
       return res.status(HttpStatus.CREATED).json(newQuiz);
     } catch (error) {
@@ -41,7 +49,6 @@ export class QuizController {
         .json({ message: error.message });
     }
   }
-
 
   @Get('/get-all-quizzes')
   @ApiResponse({ status: HttpStatus.OK, description: 'Get successfullly' })
@@ -68,7 +75,10 @@ export class QuizController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  async findManyByUserId(@Res() res: Response, @Param('userId') userId: string ): Promise<Response<QuizDto[]>> {
+  async findManyByUserId(
+    @Res() res: Response,
+    @Param('userId') userId: string,
+  ): Promise<Response<QuizDto[]>> {
     try {
       let quizzes = await this.quizService.findManyByUserId(userId);
       return res.status(HttpStatus.OK).json(quizzes);
@@ -79,7 +89,6 @@ export class QuizController {
     }
   }
 
-
   @Get(':id')
   @ApiResponse({ status: HttpStatus.OK, description: 'Get successfullly' })
   @ApiResponse({
@@ -88,7 +97,7 @@ export class QuizController {
   })
   @ApiBearerAuth()
   // @UseGuards(AuthGuard)
-  async findOne(@Res() res: Response,@Param('id') id: number) {
+  async findOne(@Res() res: Response, @Param('id') id: number) {
     try {
       let quizzes = await this.quizService.findOne(+id);
       return res.status(HttpStatus.OK).json(quizzes);
@@ -104,8 +113,20 @@ export class QuizController {
   //   return this.quizService.update(+id, updateQuizDto);
   // }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.quizService.remove(+id);
-  // }
+  @Delete(':id')
+  @ApiResponse({ status: HttpStatus.OK, description: 'Deleted successfullly' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server',
+  })
+  async remove(@Res() res: Response, @Param('id') id: number) {
+    try {
+      const quizDeleted = await this.quizService.remove(+id);
+      return res.status(HttpStatus.OK).json(quizDeleted);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
 }

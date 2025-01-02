@@ -88,11 +88,21 @@ class _MyQuizziesScreenState extends State<MyQuizziesScreen> {
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(
                         vertical: 10.0, horizontal: 16.0),
-                    leading: Image.network(
-                      quiz.coverImage,
+                    leading: Image.asset(
+                      quiz.coverImage.isNotEmpty
+                          ? quiz.coverImage
+                          : 'assets/images/default-quiz.png', 
                       width: 50.0,
                       height: 50.0,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/images/default-quiz.png', 
+                          width: 50.0,
+                          height: 50.0,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     ),
                     title: Text(quiz.title),
                     subtitle: Text(quiz.description),

@@ -15,9 +15,13 @@ export class QuizService {
 
   async create(body: CreateQuizDto): Promise<QuizDto> {
     try {
+      console.log("body:",body);
+      
       const newQuiz = await this.prisma.quizzes.create({
         data: body,
       });
+      console.log('new quiz', newQuiz);
+      
       return plainToClass(QuizDto, newQuiz);
     } catch (error) {
       throw new InternalServerErrorException(
@@ -63,7 +67,14 @@ export class QuizService {
     return `This action updates a #${id} quiz`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} quiz`;
+  async remove(id: number) : Promise<QuizDto>{
+    try {
+      const quizDeleted = await this.prisma.quizzes.delete({
+        where: { quiz_id: id },
+      });
+      return plainToClass(QuizDto, quizDeleted);
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }

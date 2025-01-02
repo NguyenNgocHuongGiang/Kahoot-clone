@@ -35,6 +35,11 @@ class QuizDetail {
       questions: questionList,
     );
   }
+
+  @override
+  String toString() {
+    return 'QuizDetail(quizId: $quizId, title: $title, description: $description, questions: $questions)';
+  }
 }
 
 class QuestionDetail {
@@ -74,6 +79,11 @@ class QuestionDetail {
       options: optionList,
     );
   }
+
+  @override
+  String toString() {
+    return 'Question(questionId: $questionId, questionText: $questionText, questionType: $questionType, options: $options)';
+  }
 }
 
 class OptionDetail {
@@ -96,5 +106,10 @@ class OptionDetail {
       optionText: json['option_text'],
       isCorrect: json['is_correct'] ?? false,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Option(optionId: $optionId, optionText: $optionText, isCorrect: $isCorrect)';
   }
 }

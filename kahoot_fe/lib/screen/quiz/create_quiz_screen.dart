@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kahoot_clone/common/common.dart';
 import 'package:kahoot_clone/screen/authentication/login_screen.dart';
-// import 'package:kahoot_clone/services/auth/auth_service.dart';
+import 'package:kahoot_clone/screen/quiz/create_question_screen.dart';
 import 'package:kahoot_clone/services/quiz/quiz_model.dart';
 import 'package:kahoot_clone/services/quiz/quiz_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,10 +19,11 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   final TextEditingController quizDescriptionController =
       TextEditingController();
   final TextEditingController quizTimeController = TextEditingController();
+  final TextEditingController quizCategoryController = TextEditingController();
 
   late Future<bool> _isLoggedInFuture;
 
-  String quizVisibility = 'public'; // Default visibility is 'public'
+  String quizVisibility = 'public'; 
 
   @override
   void initState() {
@@ -36,15 +37,13 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
       future: _isLoggedInFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child: CircularProgressIndicator()); // Đợi kết quả
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError || !snapshot.hasData || !snapshot.data!) {
           return const LoginPage();
         }
 
-        // If the user is logged in, show the quiz creation page
         return Scaffold(
           appBar: AppBar(
             title: const Text(
@@ -107,31 +106,75 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                   ),
                   const SizedBox(height: 16),
 
+                  // Quiz Category Input
+                  TextField(
+                    controller: quizCategoryController,
+                    decoration: InputDecoration(
+                      labelText: 'Quiz category',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      prefixIcon: const Icon(Icons.category_outlined,
+                          color: Colors.red),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
                   // Quiz Visibility Input (Public/Private)
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Visibility:',
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                      const SizedBox(width: 16),
-                      DropdownButton<String>(
-                        value: quizVisibility,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            quizVisibility = newValue!;
-                          });
-                        },
-                        items: <String>['public', 'private']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: quizVisibility,
+                              isExpanded: true,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  quizVisibility = newValue!;
+                                });
+                              },
+                              dropdownColor: Colors.white,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              items: <String>[
+                                'public',
+                                'private'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        value == 'public'
+                                            ? Icons.public
+                                            : Icons.lock,
+                                        color: value == 'public'
+                                            ? Colors.green
+                                            : Colors.red,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(value),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 32),
 
                   // Create Quiz Button
@@ -141,17 +184,19 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                       final String quizDescription =
                           quizDescriptionController.text.trim();
                       final String quizTime = quizTimeController.text.trim();
+                      final String quizCategory =
+                          quizCategoryController.text.trim();
 
                       if (quizName.isEmpty ||
                           quizDescription.isEmpty ||
-                          quizTime.isEmpty) {
+                          quizTime.isEmpty ||
+                          quizCategory.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
+                            backgroundColor: Colors.red,
                             content: Text(
                               'Please fill in all the fields!',
-                              style: TextStyle(
-                                  backgroundColor: Colors.red,
-                                  color: Colors.white),
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         );
@@ -164,17 +209,21 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
                       if (token != null && userId != null) {
                         final newQuiz = Quiz(
-                          id: 0,
                           title: quizName,
                           description: quizDescription,
                           creator: userId,
                           coverImage: 'assets/images/default-quiz.png',
                           visibility: quizVisibility,
-                          category: 'Math',
+                          category: quizCategory,
                         );
 
                         try {
-                          await QuizService().createQuiz(newQuiz, token);
+                          final quiz = await QuizService().createQuiz(newQuiz, token);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CreateQuestionScreen(quizId: quiz.id!)),
+                          );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(

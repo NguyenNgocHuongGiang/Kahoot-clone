@@ -24,7 +24,7 @@ export class QuestionController {
   constructor(private readonly questionService: QuestionsService) {}
 
   @Post('/')
-  @ApiBearerAuth()
+  // @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Create successfullly',
@@ -33,7 +33,7 @@ export class QuestionController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal Server',
   })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async create(@Res() res: Response, @Body() createQuestionDto: CreateQuestionDto): Promise<Response<QuestionDto>> {
     try {
       let newQuestion = await this.questionService.create(

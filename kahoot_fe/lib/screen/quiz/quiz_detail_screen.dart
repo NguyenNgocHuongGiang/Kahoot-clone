@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kahoot_clone/screen/quiz/create_question_screen.dart';
 import 'package:kahoot_clone/services/quiz/quiz_detail_model.dart';
 import 'package:kahoot_clone/services/quiz/quiz_service.dart';
 
@@ -43,12 +44,20 @@ class _QuizDetailPageState extends State<QuizDetailPage> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.network(
-                      quiz.coverImage,
-                      width: 120,
-                      height: 120,
+                    Image.asset(quiz.coverImage,
+                      width: 100,
+                      height: 100,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/images/default-quiz.png',  // Đường dẫn đến ảnh mặc định trong assets
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     ),
+                    
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
@@ -73,46 +82,53 @@ class _QuizDetailPageState extends State<QuizDetailPage> {
                           ),
                           const SizedBox(height: 10),
                           Row(
-                  children: [
-                    // Create new game button
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 10),
-                        textStyle: const TextStyle(
-                          fontSize: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Create new game'),
-                    ),
-                    const SizedBox(width: 10), // Khoảng cách giữa các nút
-                    // Edit quiz button
-                    ElevatedButton(
-                      onPressed: () {
-                        // Logic để chỉnh sửa quiz
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber, // Màu vàng
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 10),
-                        textStyle: const TextStyle(
-                          fontSize: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Edit quiz'),
-                    ),
-                  ],
-                ),
+                            children: [
+                              // Create new game button
+                              ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 10),
+                                  textStyle: const TextStyle(
+                                    fontSize: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text('Create new game'),
+                              ),
+                              const SizedBox(width: 10),
+                              // Edit quiz button
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          CreateQuestionScreen(
+                                              quizId: widget.quizId!),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.amber,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 10),
+                                  textStyle: const TextStyle(
+                                    fontSize: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text('Edit quiz'),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     )

@@ -9,7 +9,7 @@ class Quiz {
 
 
   Quiz({
-    required this.id, 
+    this.id, 
     required this.title,
     required this.description,
     required this.creator,

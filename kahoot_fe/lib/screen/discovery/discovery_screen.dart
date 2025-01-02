@@ -16,7 +16,10 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
   @override
   void initState() {
     super.initState();
-    context.read<QuizProvider>().fetchQuizzes();
+    // Gọi fetchQuizzes sau khi widget đã được dựng xong
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<QuizProvider>().fetchQuizzes();
+    });
   }
 
   @override
@@ -42,12 +45,19 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           var publicQuizzes = quizProvider.quizzes
               .where((quiz) => quiz.visibility == 'public')
               .toList();
-          
+
           if (publicQuizzes.isEmpty) {
             return const Center(child: Text('No public quizzes available.'));
           }
 
-          return ListView.builder(
+          return GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, 
+              crossAxisSpacing: 10,  
+              mainAxisSpacing: 10,   
+              childAspectRatio: 0.7, 
+            ),
             itemCount: publicQuizzes.length,
             itemBuilder: (context, index) {
               Quiz quiz = publicQuizzes[index];
@@ -56,6 +66,8 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                 imageUrl: quiz.coverImage,
                 title: quiz.title,
                 description: quiz.description,
+                height: MediaQuery.of(context).size.width * 0.9,
+                width: MediaQuery.of(context).size.width - 16,
               );
             },
           );
