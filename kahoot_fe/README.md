@@ -1,4 +1,4 @@
-# kahoot_clone
+# Flutter-Kahoot
 
 A new Flutter project.
 

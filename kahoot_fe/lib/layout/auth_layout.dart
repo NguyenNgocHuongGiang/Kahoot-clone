@@ -15,6 +15,8 @@ class AuthTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final isWeb = size.width > 600; // Xác định liệu màn hình có phải là web (hoặc tablet, desktop)
+
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -27,8 +29,8 @@ class AuthTemplate extends StatelessWidget {
                 children: [
                   Image.asset(
                     'assets/images/logo.png',
-                    width: size.width * 0.3,
-                    height: size.width * 0.3,
+                    width: isWeb ? size.width * 0.18 : size.width * 0.55, // Điều chỉnh kích thước hình ảnh
+                    height: isWeb ? size.width * 0.18 : size.width * 0.55, // Điều chỉnh chiều cao hình ảnh
                   ),
                   const SizedBox(height: 16.0),
                   Text(

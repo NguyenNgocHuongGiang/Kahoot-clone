@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kahoot_clone/providers/auth_provider.dart'; // Import trang Profile
+import 'package:kahoot_clone/screen/library/my_groups_screen.dart';
 import 'package:kahoot_clone/screen/library/my_quizzies_screen.dart';
 import 'package:kahoot_clone/screen/library/user_profile_screen.dart';
+import 'package:kahoot_clone/screen/library/history_screen.dart'; // Import màn hình History mới
 import 'package:provider/provider.dart';
 import 'package:kahoot_clone/common/common.dart';
 import 'package:kahoot_clone/components/notification_login_modal.dart';
@@ -47,20 +49,36 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   // Hàm trả về nội dung tương ứng với từng trang
   Widget _getPageContent() {
+    final userId = context.watch<AuthProvider>().userId;
     switch (_currentPage) {
       case 'Profile':
-        return Profile(onSave: () {
-          setState(() {
-            _currentPage = 'Library';
-          });
-        });
+        return userId != null
+            ? Profile(
+                onSave: () {
+                  setState(() {
+                    _currentPage = 'Library';
+                  });
+                },
+                userId: userId!,
+              )
+            : const Center(child: Text('User ID is null'));
 
-      case 'MyQuizzies':
+      case 'My Quizzies':
         return MyQuizziesScreen(onSave: () {
           setState(() {
             _currentPage = 'Library';
           });
         });
+
+      case 'My Groups':
+        return MyGroupsScreen(onSave: () {
+          setState(() {
+            _currentPage = 'Library';
+          });
+        });
+
+      case 'History': // Xử lý khi người dùng chọn History
+        return const HistoryScreen(); // Trả về màn hình History
 
       default:
         return _buildLibrary();
@@ -100,6 +118,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           ),
           const Divider(),
 
+          // Mục My Quizzies
           ListTile(
             leading: const Icon(Icons.quiz_outlined, color: Colors.green),
             title: const Text('My Quizzies'),
@@ -109,7 +128,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 // Delay setState to avoid calling it during the build phase
                 Future.delayed(Duration.zero, () {
                   setState(() {
-                    _currentPage = 'MyQuizzies';
+                    _currentPage = 'My Quizzies';
                   });
                 });
               } else {
@@ -118,6 +137,58 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   builder: (BuildContext context) {
                     return const NotificationLoginModal(
                       message: 'You must login before view your quizzies',
+                    );
+                  },
+                );
+              }
+            },
+          ),
+          const Divider(),
+
+          ListTile(
+            leading: const Icon(Icons.group, color: Colors.blue),
+            title: const Text('My Groups'),
+            onTap: () async {
+              final isLoggedIn = await checkUserLoginStatus();
+              if (isLoggedIn) {
+                Future.delayed(Duration.zero, () {
+                  setState(() {
+                    _currentPage = 'My Groups';
+                  });
+                });
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const NotificationLoginModal(
+                      message: 'You must login before view your groups',
+                    );
+                  },
+                );
+              }
+            },
+          ),
+          const Divider(),
+
+          // Mục History
+          ListTile(
+            leading: const Icon(Icons.history, color: Colors.orange),
+            title: const Text('History'),
+            onTap: () async {
+              final isLoggedIn = await checkUserLoginStatus();
+              if (isLoggedIn) {
+                // Delay setState to avoid calling it during the build phase
+                Future.delayed(Duration.zero, () {
+                  setState(() {
+                    _currentPage = 'History'; // Chuyển sang màn hình History
+                  });
+                });
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const NotificationLoginModal(
+                      message: 'You must login before view your history',
                     );
                   },
                 );

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kahoot_clone/common/common.dart';
+import 'package:kahoot_clone/screen/authentication/login_screen.dart';
+import 'package:kahoot_clone/screen/game-session/waiting_room_screen.dart';
+import 'package:kahoot_clone/services/game-session/game_session_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class JoinQuizPage extends StatefulWidget {
   const JoinQuizPage({super.key});
@@ -9,12 +14,43 @@ class JoinQuizPage extends StatefulWidget {
 
 class _JoinQuizPageState extends State<JoinQuizPage> {
   TextEditingController codeController = TextEditingController();
-  bool isPinEntered = false; // Kiểm tra xem mã PIN đã được nhập chưa
-  bool isPinMode = true; // Kiểm tra chế độ hiện tại (Enter PIN hoặc Scan QR Code)
+  bool isPinEntered = false;
+  bool isPinMode = true;
+  late Future<bool> _isLoggedInFuture;
+
+  @override
+  void initState() {
+    super.initState();
+     _isLoggedInFuture = checkUserLoginStatus();
+  }
+
+  Future<bool> _checkPin(String token, String pin) async {
+    bool flag = false;
+    try {
+      final response = await GameSessionService()
+          .getGameSessionByPIN(token: token, pin: pin);
+      if (response['gameSession']['status'] == 'active') {
+        flag = true;
+      }
+    } catch (error) {
+      print('Failed to create player session: $error');
+    }
+    return flag;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FutureBuilder<bool>(
+      future: _isLoggedInFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError || !snapshot.hasData || !snapshot.data!) {
+          return const LoginPage();
+        }
+        return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -27,7 +63,8 @@ class _JoinQuizPageState extends State<JoinQuizPage> {
               ),
               elevation: 6,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 50.0, horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 50.0, horizontal: 25.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -51,70 +88,105 @@ class _JoinQuizPageState extends State<JoinQuizPage> {
                             controller: codeController,
                             decoration: InputDecoration(
                               labelText: 'Enter Quiz PIN',
-                              labelStyle: const TextStyle(color: Colors.black54),
+                              labelStyle:
+                                  const TextStyle(color: Colors.black54),
                               filled: true,
                               fillColor: Colors.grey[100],
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide.none,
                               ),
-                              prefixIcon: const Icon(Icons.vpn_key, color: Colors.red),
+                              prefixIcon:
+                                  const Icon(Icons.vpn_key, color: Colors.red),
                             ),
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             onChanged: (value) {
                               setState(() {
-                                isPinEntered = value.isNotEmpty; // Kiểm tra mã PIN đã nhập hay chưa
+                                isPinEntered = value.isNotEmpty;
                               });
                             },
                           ),
                           const SizedBox(height: 16),
 
-                          // Nút Submit chỉ hiển thị khi mã PIN đã được nhập
+                          // Nút tham gia quiz
                           if (isPinEntered)
                             ElevatedButton(
-                              onPressed: () {
-                                String quizCode = codeController.text.trim();
-                                if (quizCode.isEmpty) {
+                              onPressed: () async {
+                                String quizPin = codeController.text.trim();
+                                if (quizPin.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Please enter a valid quiz code!'),
-                                    ),
+                                        content: Text(
+                                            'Please enter a valid quiz pin!')),
                                   );
                                 } else {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => QuizPage(quizCode: quizCode),
-                                    ),
-                                  );
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  String? token = prefs.getString('token');
+                                  try {
+                                    if (token != null) {
+                                      _checkPin(token, quizPin).then((flag) {
+                                        print(flag);
+                                        if (flag == true) {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  WaitingRoomScreen(
+                                                gamePin: quizPin,
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Quiz pin is wrong', style: TextStyle(color: Colors.white),),
+                                              backgroundColor:
+                                                  Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }).catchError((error) {
+                                        print('Error: $error');
+                                      });
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Token is null. Please log in again.')),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content:
+                                              Text('Failed to join game: $e')),
+                                    );
+                                  }
                                 }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                               child: const Padding(
+                              child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                                 child: Text(
                                   'Join Quiz',
-                                  style: TextStyle(fontSize: 18, color: Colors.white),
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.white),
                                 ),
                               ),
                             ),
                         ],
-                      ),
-
-                    // Chế độ Scan QR Code
-                    if (!isPinMode)
-                      const Center(
-                        child: Text(
-                          'QR Code scanning is not implemented yet.',
-                          style: TextStyle(fontSize: 18, color: Colors.black54),
-                        ),
                       ),
                   ],
                 ),
@@ -165,28 +237,7 @@ class _JoinQuizPageState extends State<JoinQuizPage> {
         ),
       ),
     );
-  }
-}
-
-// Trang QuizPage hiển thị sau khi nhập mã thành công
-class QuizPage extends StatelessWidget {
-  final String quizCode;
-
-  const QuizPage({super.key, required this.quizCode});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quiz Page'),
-        backgroundColor: Colors.red,
-      ),
-      body: Center(
-        child: Text(
-          'Welcome to Quiz $quizCode!',
-          style: const TextStyle(fontSize: 20),
-        ),
-      ),
+      }
     );
   }
 }

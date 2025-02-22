@@ -3,12 +3,13 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpStatus,
   UseGuards,
-  Res
+  Res,
+  NotFoundException,
+  Put
 } from '@nestjs/common';
 import { QuestionsService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -54,18 +55,67 @@ export class QuestionController {
   //   return this.questionService.findAll();
   // }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.questionService.findOne(+id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.questionService.findByQuestionId(+id);
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateQuestionDto: UpdateQuestionDto) {
-  //   return this.questionService.update(+id, updateQuestionDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.questionService.remove(+id);
-  // }
+  @Put(':id')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Update successful',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Question not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+  })
+  // @UseGuards(AuthGuard)
+  async update(
+    @Param('id') id: string,
+    @Body() updateQuestionDto: UpdateQuestionDto,
+    @Res() res: Response
+  ): Promise<Response<QuestionDto>> {
+    try {
+      const updatedQuestion = await this.questionService.update(+id, updateQuestionDto);
+      return res.status(HttpStatus.OK).json(updatedQuestion);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return res.status(HttpStatus.NOT_FOUND).json({ message: error.message });
+      }
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
+  
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Delete successful',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Question not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+  })
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Res() res: Response) : Promise<Response<any>> {
+    try {
+      const deletedQuestion = await this.questionService.remove(+id)
+      return res.status(HttpStatus.OK).json(deletedQuestion);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return res.status(HttpStatus.NOT_FOUND).json({ message: error.message });
+      }
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
 }

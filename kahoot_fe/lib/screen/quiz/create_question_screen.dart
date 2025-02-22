@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:kahoot_clone/services/question/question_model.dart';
 import 'package:kahoot_clone/services/question/question_service.dart';
 import 'package:kahoot_clone/services/quiz/quiz_service.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class CreateQuestionScreen extends StatefulWidget {
   final int quizId;
@@ -18,6 +20,12 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
   String correctAnswer = '';
   int timerDuration = 20;
   int questionId = 0;
+  String optionAId = '';
+  String optionBId = '';
+  String optionCId = '';
+  String optionDId = '';
+  File? _image;
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -33,8 +41,8 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
       answerC = '';
       answerD = '';
       correctAnswer = '';
-      timerDuration = 20; 
-      questionId = 0; 
+      timerDuration = 20;
+      questionId = 0;
     });
   }
 
@@ -42,27 +50,26 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
     try {
       final questionData =
           await QuizService().fetchQuizDetailById(widget.quizId);
-
-      print('Quiz ID: ${questionData.quizId}');
-      print('Title: ${questionData.title}');
-      print('Description: ${questionData.description}');
-      print('Number of Questions: ${questionData.questions.length}');
-
-      for (var question in questionData.questions) {
-        print('Question ID: ${question.questionId}');
-        print('Question Text: ${question.questionText}');
-        print('Question Type: ${question.questionType}');
-        print('Options:');
-
-        // In chi tiết các lựa chọn cho từng câu hỏi
-        for (var option in question.options) {
-          print('  Option ID: ${option.optionId}');
-          print('  Option Text: ${option.optionText}');
-          print('  Is Correct: ${option.isCorrect}');
-        }
-      }
     } catch (e) {
       print('Error loading question data: $e');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _isUploading = true;
+      });
+
+      await Future.delayed(const Duration(seconds: 2));
+
+      setState(() {
+        _image = File(pickedFile.path);
+        _isUploading = false;
+      });
     }
   }
 
@@ -128,6 +135,7 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
           content: TextField(
             controller: questionController,
             decoration: const InputDecoration(hintText: "Enter the question"),
+            maxLength: 130,
           ),
           actions: <Widget>[
             TextButton(
@@ -135,11 +143,15 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
                 setState(() {
                   question = questionController.text;
                 });
+                String imageUrl = '';
+                if (_image != null) {
+                  imageUrl = await QuizService().uploadImage(_image!);
+                }
                 final newQuestion = QuestionDetail(
                   quizId: widget.quizId,
                   questionText: question,
                   questionType: 'multiple_choice',
-                  mediaUrl: '/assets/images/default-quiz.png',
+                  mediaUrl: imageUrl ,
                   timeLimit: timerDuration,
                   points: 10,
                 );
@@ -165,76 +177,143 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
     TextEditingController optionController = TextEditingController();
     bool isCorrect = false;
 
+    String currentAnswer = '';
+    bool currentIsCorrect = false;
+
+    // Kiểm tra đáp án hiện tại
+    if (option == 'A' && answerA.isNotEmpty) {
+      currentAnswer = answerA;
+      currentIsCorrect = correctAnswer == 'A';
+    } else if (option == 'B' && answerB.isNotEmpty) {
+      currentAnswer = answerB;
+      currentIsCorrect = correctAnswer == 'B';
+    } else if (option == 'C' && answerC.isNotEmpty) {
+      currentAnswer = answerC;
+      currentIsCorrect = correctAnswer == 'C';
+    } else if (option == 'D' && answerD.isNotEmpty) {
+      currentAnswer = answerD;
+      currentIsCorrect = correctAnswer == 'D';
+    }
+
+    optionController.text = currentAnswer;
+    isCorrect = currentIsCorrect;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Enter answer for $option'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: optionController,
-                decoration: InputDecoration(hintText: "Enter option $option"),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setStateDialog) {
+            return AlertDialog(
+              title: Text('Enter answer for $option'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Is this the correct answer?'),
-                  Switch(
-                    value: isCorrect,
-                    onChanged: (bool value) {
-                      setState(() {
-                        isCorrect = value;
-                      });
-                    },
+                  TextField(
+                    controller: optionController,
+                    decoration:
+                        InputDecoration(hintText: "Enter option $option"),
+                    maxLength: 50,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Is this the correct answer?'),
+                      Switch(
+                        value: isCorrect,
+                        onChanged: (bool value) {
+                          setStateDialog(() {
+                            isCorrect = value;
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                String enteredAnswer = optionController.text;
-                if (enteredAnswer.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Answer cannot be empty')),
-                  );
-                  return;
-                }
-                try {
-                  final newOption = OptionDetail(
-                    questionId: questionId,
-                    optionText: enteredAnswer,
-                    isCorrect: isCorrect,
-                  );
-                  print(newOption);
-                  await QuestionAndOptionService().addOption(newOption);
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () async {
+                    String enteredAnswer = optionController.text;
+                    if (enteredAnswer.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Answer cannot be empty')),
+                      );
+                      return;
+                    }
+                    try {
+                      if (currentAnswer.isEmpty) {
+                        final newOption = OptionDetail(
+                          questionId: questionId,
+                          optionText: enteredAnswer,
+                          isCorrect: isCorrect,
+                        );
 
-                  setState(() {
-                    if (option == 'A') answerA = enteredAnswer;
-                    if (option == 'B') answerB = enteredAnswer;
-                    if (option == 'C') answerC = enteredAnswer;
-                    if (option == 'D') answerD = enteredAnswer;
-                  });
+                        // Nếu không có câu trả lời, thêm mới
+                        final optionCreated = await QuestionAndOptionService()
+                            .addOption(newOption);
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Answer $option saved successfully')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Failed to save answer $option: $e')),
-                  );
-                }
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
+                        // Lưu lại ID mới trả về từ API
+                        if (option == 'A')
+                          optionAId = optionCreated.optionId.toString();
+                        if (option == 'B')
+                          optionBId = optionCreated.optionId.toString();
+                        if (option == 'C')
+                          optionCId = optionCreated.optionId.toString();
+                        if (option == 'D')
+                          optionDId = optionCreated.optionId.toString();
+                      } else {
+                        String? optionId;
+                        if (option == 'A') optionId = optionAId;
+                        if (option == 'B') optionId = optionBId;
+                        if (option == 'C') optionId = optionCId;
+                        if (option == 'D') optionId = optionDId;
+                        if (optionId != null) {
+                          final updatedOption = (
+                            option_id: int.tryParse(optionId),
+                            question_id: questionId,
+                            option_text: enteredAnswer,
+                            is_correct: isCorrect,
+                          );
+                          await QuestionAndOptionService()
+                              .updateOption(updatedOption);
+                        }
+                      }
+
+                      // Cập nhật đáp án trong trạng thái của widget
+                      setState(() {
+                        if (option == 'A') {
+                          answerA = enteredAnswer;
+                          if (isCorrect) correctAnswer = 'A';
+                        } else if (option == 'B') {
+                          answerB = enteredAnswer;
+                          if (isCorrect) correctAnswer = 'B';
+                        } else if (option == 'C') {
+                          answerC = enteredAnswer;
+                          if (isCorrect) correctAnswer = 'C';
+                        } else if (option == 'D') {
+                          answerD = enteredAnswer;
+                          if (isCorrect) correctAnswer = 'D';
+                        }
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Answer $option saved successfully')),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Failed to save answer $option: $e')),
+                      );
+                    }
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -244,30 +323,61 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Question'),
+        title:
+            const Text('Add Question', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+        backgroundColor: Colors.red,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: SingleChildScrollView(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Upload image
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     GestureDetector(
+            //       onTap: () {},
+            //       child: Container(
+            //         width: 300,
+            //         height: 200,
+            //         color: Colors.grey[100],
+            //         child: const Column(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           children: [
+            //             Icon(Icons.upload),
+            //             Text('Add media'),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
-                  onTap: () {},
+                  onTap: _pickImage,
                   child: Container(
                     width: 300,
                     height: 200,
                     color: Colors.grey[100],
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.upload),
-                        Text('Add media'),
-                      ],
-                    ),
+                    child: _isUploading
+                        ? const Center(
+                            child:
+                                CircularProgressIndicator()) // Hiển thị loading khi đang tải lên
+                        : _image == null
+                            ? const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.upload),
+                                  Text('Add media'),
+                                ],
+                              )
+                            : Image.file(_image!,
+                                fit: BoxFit.cover), // Hiển thị ảnh khi đã chọn
                   ),
                 ),
               ],
@@ -300,8 +410,9 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
                   child: GestureDetector(
                     onTap: () => _showOptionDialog('A'),
                     child: Container(
-                      height: 70,
+                      height: 80,
                       color: Colors.red,
+                      padding: const EdgeInsets.all(8),
                       margin: const EdgeInsets.symmetric(
                           horizontal: 2, vertical: 2),
                       child: Center(
@@ -314,8 +425,9 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
                   child: GestureDetector(
                     onTap: () => _showOptionDialog('B'),
                     child: Container(
-                      height: 70,
+                      height: 80,
                       color: Colors.blue,
+                      padding: const EdgeInsets.all(8),
                       margin: const EdgeInsets.symmetric(
                           horizontal: 2, vertical: 2),
                       child: Center(
@@ -334,8 +446,9 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
                   child: GestureDetector(
                     onTap: () => _showOptionDialog('C'),
                     child: Container(
-                      height: 70,
+                      height: 80,
                       color: Colors.yellow,
+                      padding: const EdgeInsets.all(8),
                       margin: const EdgeInsets.symmetric(
                           horizontal: 2, vertical: 1),
                       child: Center(
@@ -348,8 +461,9 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
                   child: GestureDetector(
                     onTap: () => _showOptionDialog('D'),
                     child: Container(
-                      height: 70,
+                      height: 80,
                       color: Colors.green,
+                      padding: const EdgeInsets.all(8),
                       margin: const EdgeInsets.symmetric(
                           horizontal: 2, vertical: 1),
                       child: Center(
@@ -367,7 +481,9 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
                 Column(
                   children: [
@@ -386,7 +502,7 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
             ),
           ],
         ),
-      ),
+    )),
     );
   }
 }

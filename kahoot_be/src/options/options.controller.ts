@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   HttpStatus,
@@ -22,7 +22,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 @ApiTags('Options')
 @Controller('options')
 export class OptionsController {
-  constructor(private readonly questionService: OptionsService) {}
+  constructor(private readonly optionService: OptionsService) {}
 
   @Post('/')
   // @ApiBearerAuth()
@@ -40,7 +40,7 @@ export class OptionsController {
     @Body() createOptionDto: CreateOptionDto,
   ): Promise<Response<OptionDto>> {
     try {
-      let newOption = await this.questionService.create({
+      let newOption = await this.optionService.create({
         ...createOptionDto,
       });
       return res.status(HttpStatus.CREATED).json(newOption);
@@ -49,25 +49,51 @@ export class OptionsController {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: error.message });
     }
+  }
 
-    // @Get()
-    // findAll() {
-    //   return this.optionsService.findAll();
-    // }
+  // @Get()
+  // findAll() {
+  //   return this.optionsService.findAll();
+  // }
 
-    // @Get(':id')
-    // findOne(@Param('id') id: string) {
-    //   return this.optionsService.findOne(+id);
-    // }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.optionsService.findOne(+id);
+  // }
 
-    // @Patch(':id')
-    // update(@Param('id') id: string, @Body() updateOptionDto: UpdateOptionDto) {
-    //   return this.optionsService.update(+id, updateOptionDto);
-    // }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.optionsService.remove(+id);
+  // }
 
-    // @Delete(':id')
-    // remove(@Param('id') id: string) {
-    //   return this.optionsService.remove(+id);
-    // }
+  @Put(':id')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Update successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Option not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server Error',
+  })
+  async update(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() updateOptionDto: UpdateOptionDto,
+  ): Promise<Response<OptionDto>> {
+    try {
+      const updatedOption = await this.optionService.update(
+        +id,
+        updateOptionDto,
+      );
+      return res.status(HttpStatus.OK).json(updatedOption);
+    } catch (error) {
+      return res
+        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
   }
 }

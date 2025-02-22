@@ -14,12 +14,15 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisible = false;
-  bool _rememberMe = false;
+  // bool _rememberMe = false;
   String email = '';
   String password = '';
 
   @override
   Widget build(BuildContext context) {
+    // Lấy kích thước màn hình
+    double width = MediaQuery.of(context).size.width;
+
     return AuthTemplate(
       title: 'Welcome back!',
       content: Form(
@@ -27,106 +30,126 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           children: [
             // Email input
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            SizedBox(
+              width: width > 600
+                  ? 400
+                  : width *
+                      0.8, // Đảm bảo chiều rộng vừa phải trên màn hình nhỏ
+              child: TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  prefixIcon: const Icon(Icons.email),
                 ),
-                prefixIcon: const Icon(Icons.email),
+                keyboardType: TextInputType.emailAddress,
+                onChanged: (value) {
+                  setState(() {
+                    email = value;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(
+                          r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+                      .hasMatch(value)) {
+                    return 'Invalid email format';
+                  }
+                  return null;
+                },
               ),
-              keyboardType: TextInputType.emailAddress,
-              onChanged: (value) {
-                setState(() {
-                  email = value;
-                });
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
-                }
-                if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-                    .hasMatch(value)) {
-                  return 'Invalid email format';
-                }
-                return null;
-              },
             ),
+
             const SizedBox(height: 16.0),
 
             // Password input
-            TextFormField(
-              obscureText: !_passwordVisible,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                prefixIcon: const Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
+            SizedBox(
+              width: width > 600
+                  ? 400
+                  : width *
+                      0.8, // Đảm bảo chiều rộng vừa phải trên màn hình nhỏ
+              child: TextFormField(
+                obscureText: !_passwordVisible,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _passwordVisible = !_passwordVisible;
-                    });
-                  },
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    password = value;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
               ),
-              onChanged: (value) {
-                setState(() {
-                  password = value;
-                });
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
-                }
-                if (value.length < 6) {
-                  return 'Password must be at least 6 characters';
-                }
-                return null;
-              },
             ),
+
             const SizedBox(height: 8.0),
 
             // Remember me & Forgot password
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _rememberMe,
-                      onChanged: (value) {
-                        setState(() {
-                          _rememberMe = value ?? false;
-                        });
-                      },
-                    ),
-                    const Text('Remember me'),
-                  ],
-                ),
-                GestureDetector(
-                  onTap: () {
-                    // Handle forgot password
-                  },
-                  child: const Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     Row(
+            //       children: [
+            //         Checkbox(
+            //           value: _rememberMe,
+            //           onChanged: (value) {
+            //             setState(() {
+            //               _rememberMe = value ?? false;
+            //             });
+            //           },
+            //         ),
+            //         const Text('Remember me'),
+            //       ],
+            //     ),
+            //     GestureDetector(
+            //       onTap: () {
+            //         // Handle forgot password
+            //       },
+            //       child: const Text(
+            //         'Forgot Password?',
+            //         style: TextStyle(
+            //           color: Colors.red,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
 
             // Login button
             const SizedBox(height: 16.0),
             SizedBox(
-              width: double.infinity,
+              width: width > 600
+                  ? 400
+                  : width *
+                      0.80, // Đảm bảo nút đăng nhập không quá rộng trên màn hình nhỏ
               child: ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState?.validate() == true) {
@@ -139,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                         SnackBar(
                           content: Text(error.split(':')[1].trim()),
                           duration: const Duration(seconds: 3),
-                          backgroundColor: Colors.red, 
+                          backgroundColor: Colors.red,
                         ),
                       );
                     } else {
@@ -147,8 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                         const SnackBar(
                           content: Text('Login successfully!'),
                           duration: Duration(seconds: 3),
-                          backgroundColor:
-                              Colors.green,
+                          backgroundColor: Colors.green,
                         ),
                       );
 

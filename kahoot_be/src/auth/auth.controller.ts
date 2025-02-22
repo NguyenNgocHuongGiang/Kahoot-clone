@@ -24,6 +24,11 @@ export class AuthController {
       const result = await this.authService.register(registerDto);
       return res.status(HttpStatus.OK).json(result);
     } catch (error) {
+      if (error.message === 'User already exists') {
+        return res
+          .status(HttpStatus.CONFLICT)
+          .json({ message: 'User already exists' });
+      }
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
@@ -45,6 +50,4 @@ export class AuthController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
-
-  
 }

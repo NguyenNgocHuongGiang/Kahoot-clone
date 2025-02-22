@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -16,6 +17,8 @@ async function bootstrap() {
     methods: 'GET,POST,PUT,DELETE', 
     allowedHeaders: 'Content-Type, Authorization',
   });
+
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   const configSwagger = new DocumentBuilder()
   .setTitle('Quiz Fox')

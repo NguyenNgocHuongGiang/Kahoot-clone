@@ -16,7 +16,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, password, full_name, username, avatar } = registerDto;
+    const { email, password, full_name, username } = registerDto;
 
     const userExists = await this.prisma.users.findUnique({
       where: { email },
@@ -26,15 +26,13 @@ export class AuthService {
       throw new Error('User already exists');
     }
 
-    const defaultAvatar = '/images/default-avatar.jpg';
-
     const userNew = await this.prisma.users.create({
       data: {
         full_name: full_name,
         email: email,
         password: bcrypt.hashSync(password, 10),
         username: username || '',
-        avatar: defaultAvatar,
+        avatar: 'https://res.cloudinary.com/dlrd3ngz5/image/upload/v1738950300/kahoot_clone/bgu71soejmd8aniapnmy.jpg'
       },
     });
 

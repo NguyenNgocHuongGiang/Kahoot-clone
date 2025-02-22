@@ -45,6 +45,15 @@ dependencies:
   jwt_decoder: ^2.0.1
   image_picker: ^1.1.2
   flutter_screenutil: ^5.9.3
+  web_socket_channel: ^3.0.1
+  socket_io_client: ^3.0.2
+  uuid: ^4.5.1
+  flutter_staggered_animations: ^1.1.1
+  intl: ^0.20.1
+  confetti: ^0.8.0
+  mime: ^2.0.0
+  fl_chart: ^0.70.2
+  percent_indicator: ^4.2.4
   # qr_code_scanner: ^1.0.0
 
 dev_dependencies:

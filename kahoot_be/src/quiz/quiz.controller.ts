@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Res,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
@@ -89,6 +90,27 @@ export class QuizController {
     }
   }
 
+  @Get('/get-top-quiz')
+  @ApiResponse({ status: HttpStatus.OK, description: 'Get successfullly' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server',
+  })
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard)
+  async getTopQuiz(
+    @Res() res: Response,
+  ): Promise<Response<any>> {
+    try {
+      let quizzes = await this.quizService.getTopQuiz()
+      return res.status(HttpStatus.OK).json(quizzes);   
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
+
   @Get(':id')
   @ApiResponse({ status: HttpStatus.OK, description: 'Get successfullly' })
   @ApiResponse({
@@ -97,7 +119,7 @@ export class QuizController {
   })
   @ApiBearerAuth()
   // @UseGuards(AuthGuard)
-  async findOne(@Res() res: Response, @Param('id') id: number) {
+  async findOne(@Res() res: Response, @Param('id') id: number) {  
     try {
       let quizzes = await this.quizService.findOne(+id);
       return res.status(HttpStatus.OK).json(quizzes);
@@ -108,10 +130,28 @@ export class QuizController {
     }
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateQuizDto: UpdateQuizDto) {
-  //   return this.quizService.update(+id, updateQuizDto);
-  // }
+  @Put(':id')
+  @ApiResponse({ status: HttpStatus.OK, description: 'Updated successfully' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server',
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  async update(
+    @Res() res: Response,
+    @Param('id') id: number,
+    @Body() updateQuizDto: UpdateQuizDto,
+  ): Promise<Response<QuizDto>> {
+    try {
+      const updatedQuiz = await this.quizService.update(+id, updateQuizDto);
+      return res.status(HttpStatus.OK).json(updatedQuiz);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
 
   @Delete(':id')
   @ApiResponse({ status: HttpStatus.OK, description: 'Deleted successfullly' })

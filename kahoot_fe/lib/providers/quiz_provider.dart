@@ -39,4 +39,18 @@ class QuizProvider with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
+
+  Future<void> fetchTopQuizzes() async {
+    _isLoading = true;
+    notifyListeners(); // Cập nhật trạng thái loading
+
+    try {
+      _quizzes = await QuizService().getTopQuizzies(); // Gọi API lấy top quiz
+    } catch (e) {
+      print('Error fetching quizzes: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners(); // Cập nhật UI sau khi lấy dữ liệu
+    }
+  }
 }

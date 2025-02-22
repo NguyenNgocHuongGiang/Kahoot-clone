@@ -33,4 +33,20 @@ class AuthService {
       throw Exception(errorResponse['message']);
     }
   }
+
+  Future<void> register(String fullname, String username, String email, String password) async {
+    await http.post(
+      Uri.parse('${Constants.BASE_URL}auth/register'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'full_name': fullname,
+        'username': username,
+        'email': email,
+        'password': password,
+      }),
+    );
+
+  }
 }

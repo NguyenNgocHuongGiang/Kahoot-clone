@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:kahoot_clone/common/common.dart';
 import 'package:kahoot_clone/screen/authentication/login_screen.dart';
 import 'package:kahoot_clone/screen/quiz/create_question_screen.dart';
+import 'package:kahoot_clone/services/game-session/game_session_service.dart';
 import 'package:kahoot_clone/services/quiz/quiz_model.dart';
 import 'package:kahoot_clone/services/quiz/quiz_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class CreateQuizPage extends StatefulWidget {
   const CreateQuizPage({super.key});
@@ -21,14 +24,28 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   final TextEditingController quizTimeController = TextEditingController();
   final TextEditingController quizCategoryController = TextEditingController();
 
+  String imageUrl = '';
+
   late Future<bool> _isLoggedInFuture;
 
-  String quizVisibility = 'public'; 
+  String quizVisibility = 'public';
+
+  File? coverImage;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
     _isLoggedInFuture = checkUserLoginStatus();
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        coverImage = File(image.path);
+      });
+    }
   }
 
   @override
@@ -177,6 +194,34 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
 
                   const SizedBox(height: 32),
 
+                  // Cover Image Picker Button
+                  ElevatedButton(
+                    onPressed: _pickImage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Pick a cover image',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  if (coverImage != null)
+                    Image.file(
+                      coverImage!,
+                      height: 150,
+                      width: 150,
+                      fit: BoxFit.cover,
+                    ),
+
+                  const SizedBox(height: 32),
+
                   // Create Quiz Button
                   ElevatedButton(
                     onPressed: () async {
@@ -208,21 +253,37 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                       String? userId = prefs.getString('user_id');
 
                       if (token != null && userId != null) {
+                        if (coverImage != null) {
+                          imageUrl =
+                              await QuizService().uploadImage(coverImage!);
+                        }
+
                         final newQuiz = Quiz(
                           title: quizName,
                           description: quizDescription,
                           creator: userId,
-                          coverImage: 'assets/images/default-quiz.png',
+                          coverImage: imageUrl != ''
+                              ? imageUrl
+                              : 'https://res.cloudinary.com/dlrd3ngz5/image/upload/v1738783278/kahoot_clone/tiazt9rtbc1thccrgw58.jpg',
                           visibility: quizVisibility,
                           category: quizCategory,
                         );
 
                         try {
-                          final quiz = await QuizService().createQuiz(newQuiz, token);
+                          final quiz =
+                              await QuizService().createQuiz(newQuiz, token);
+
+                          final newGame = await GameSessionService()
+                              .createGameSession(
+                                  quiz_id: quiz.id!,
+                                  host: userId!,
+                                  token: token!);
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => CreateQuestionScreen(quizId: quiz.id!)),
+                                builder: (context) =>
+                                    CreateQuestionScreen(quizId: quiz.id!)),
                           );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -254,4 +315,4 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   }
 }
 
-// 
+//

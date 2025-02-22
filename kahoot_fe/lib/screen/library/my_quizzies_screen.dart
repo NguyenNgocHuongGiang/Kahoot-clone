@@ -88,24 +88,44 @@ class _MyQuizziesScreenState extends State<MyQuizziesScreen> {
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(
                         vertical: 10.0, horizontal: 16.0),
-                    leading: Image.asset(
-                      quiz.coverImage.isNotEmpty
-                          ? quiz.coverImage
-                          : 'assets/images/default-quiz.png', 
-                      width: 50.0,
-                      height: 50.0,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/images/default-quiz.png', 
-                          width: 50.0,
-                          height: 50.0,
-                          fit: BoxFit.cover,
-                        );
-                      },
+                    leading: ClipRRect(
+                      borderRadius:
+                          BorderRadius.circular(8), // Bo tròn góc nếu cần
+                      child: Image.network(
+                        quiz.coverImage,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null)
+                            return child; // Ảnh tải xong thì hiển thị
+
+                          return SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2, // Độ dày vòng tròn loading
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        (loadingProgress.expectedTotalBytes ??
+                                            1)
+                                    : null,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.broken_image,
+                              size: 50, color: Colors.grey);
+                        },
+                      ),
                     ),
                     title: Text(quiz.title),
-                    subtitle: Text(quiz.description),
+                    subtitle: Text(quiz.description.length > 30
+                        ? quiz.description.substring(0, 30) + '...'
+                        : quiz.description),
                     trailing: const Icon(Icons.arrow_forward_ios),
                     onTap: () {
                       Navigator.push(

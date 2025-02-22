@@ -10,6 +10,8 @@ class UserProvider extends ChangeNotifier {
   String _phone = '';
   bool _isLoading = true;
   String _errorMessage = '';
+  List<dynamic> _users = [];
+  List<dynamic> _topUsers = [];
 
   String get username => _username;
   String get email => _email;
@@ -20,10 +22,13 @@ class UserProvider extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
+  List<dynamic> get users => _users;
+  List<dynamic> get topUsers => _topUsers;
 
   UserProvider() {
     fetchUserInfo();
     updateUserInfo();
+    fetchAllUsers();
   }
 
   Future<void> fetchUserInfo() async {
@@ -64,9 +69,10 @@ class UserProvider extends ChangeNotifier {
 
     if (updatedData.isEmpty) return; // No updates to make
 
+    print(updatedData);
     try {
       // Call the service function here
-      final response = await  UserService().updateUser(updatedData);
+      final response = await UserService().updateUser(updatedData);
 
       // Update local state with successful server response
       if (response.containsKey('username')) _username = response['username'];
@@ -79,7 +85,71 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print('Error updating user info: $e');
-      throw e; 
+      throw e;
     }
   }
+
+  Future<void> updateUserAvatar({
+    String? avatar,
+  }) async {
+    final Map<String, dynamic> updatedData = {};
+
+    if (avatar != null) updatedData['avatar'] = avatar;
+
+    if (updatedData.isEmpty) return; // No updates to make
+
+    try {
+      // Call the service function here
+      final response = await UserService().updateUser(updatedData);
+
+      print(response);
+
+      // Update local state with successful server response
+      if (response.containsKey('avatar')) _avatar = response['avatar'];
+
+      // Notify listeners to update UI
+      notifyListeners();
+    } catch (e) {
+      print('Error updating user info: $e');
+      throw e;
+    }
+  }
+
+  Future<void> fetchAllUsers() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final allUsers = await UserService().getAllUsers();
+      _users = allUsers;
+      _errorMessage = '';
+    } catch (e) {
+      _errorMessage = 'Lỗi khi lấy danh sách người dùng: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchTopUsers() async {
+  try {
+    _isLoading = true;
+    notifyListeners();
+
+    final allUsers = await UserService().getTopUsers();
+    
+    if (allUsers.isNotEmpty) {
+      _topUsers = allUsers;
+    } else {
+      _errorMessage = 'Không có top users nào!';
+    }
+
+  } catch (e) {
+    _errorMessage = 'Lỗi khi lấy top users: $e';
+  } finally {
+    _isLoading = false;
+    notifyListeners();
+  }
+}
+
 }

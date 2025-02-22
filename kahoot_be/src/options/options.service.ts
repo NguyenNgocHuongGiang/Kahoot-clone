@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateOptionDto } from './dto/create-option.dto';
 import { UpdateOptionDto } from './dto/update-option.dto';
 import { OptionDto } from './dto/option.dto';
@@ -29,9 +29,27 @@ export class OptionsService {
   //   return `This action returns a #${id} option`;
   // }
 
-  // update(id: number, updateOptionDto: UpdateOptionDto) {
-  //   return `This action updates a #${id} option`;
-  // }
+  async update(id: number, updateOptionDto: UpdateOptionDto): Promise<OptionDto> {
+    try {
+      const option = await this.prisma.options.findUnique({
+        where: { option_id: id },
+      });
+
+      if (!option) {
+        throw new NotFoundException('Option not found');
+      }
+
+      const updatedOption = await this.prisma.options.update({
+        where: { option_id: id },
+        data: updateOptionDto,
+      });
+      return updatedOption;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'An error occurred during update option',
+      );
+    }
+  }
 
   // remove(id: number) {
   //   return `This action removes a #${id} option`;

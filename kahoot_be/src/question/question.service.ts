@@ -28,47 +28,50 @@ export class QuestionsService {
   //   return await this.prisma.questions.findMany();
   // }
 
-  // async findByQuestionId(question_id: number) {
-  //   const question = await this.prisma.questions.findUnique({
-  //     where: { question_id },
-  //   });
+  async findByQuestionId(question_id: number): Promise<QuestionDto> {
+    const question = await this.prisma.questions.findUnique({
+      where: { question_id },
+    });
+    if (!question) {
+      throw new NotFoundException('Question not found');
+    }
+    return question;
+  }
 
-  //   if (!question) {
-  //     throw new NotFoundException('Question not found');
-  //   }
+  async update(question_id: number, data: Prisma.QuestionsUpdateInput): Promise<QuestionDto> {
+    const question = await this.prisma.questions.findUnique({
+      where: { question_id },
+    });
+  
+    if (!question) {
+      throw new NotFoundException('Question not found');
+    }
+  
+    try {
+      return await this.prisma.questions.update({
+        where: { question_id },
+        data,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('An error occurred while updating the question');
+    }
+  }
+  
+  async remove(question_id: number) {
+    const question = await this.prisma.questions.findUnique({
+      where: { question_id },
+    });
 
-  //   return question;
-  // }
+    if (!question) {
+      throw new NotFoundException('Question not found');
+    }
 
-  // async update(
-  //   question_id: number,
-  //   data: Prisma.QuestionsUpdateInput,
-  // ) {
-  //   const question = await this.prisma.questions.findUnique({
-  //     where: { question_id },
-  //   });
+    await this.prisma.options.deleteMany({
+      where: { question_id },
+    });
 
-  //   if (!question) {
-  //     throw new NotFoundException('Question not found');
-  //   }
-
-  //   return await this.prisma.questions.update({
-  //     where: { question_id },
-  //     data,
-  //   });
-  // }
-
-  // async remove(question_id: number) {
-  //   const question = await this.prisma.questions.findUnique({
-  //     where: { question_id },
-  //   });
-
-  //   if (!question) {
-  //     throw new NotFoundException('Question not found');
-  //   }
-
-  //   return await this.prisma.questions.delete({
-  //     where: { question_id },
-  //   });
-  // }
+    return await this.prisma.questions.delete({
+      where: { question_id },
+    });
+  }
 }
